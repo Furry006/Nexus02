@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import "dotenv/config";
 
 const app = new Hono();
 
@@ -7,6 +8,8 @@ app.get("/", (c) => {
     message: "Hello Nexus API server!",
   });
 });
+
+
 
 export default {
   port: 3000,
