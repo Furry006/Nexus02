@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import "dotenv/config";
+import authRouter from "./routes/auth.routes";
 
 const app = new Hono();
 
@@ -9,6 +10,8 @@ app.get("/", (c) => {
   });
 });
 
+/// auth routes
+app.route("/auth", authRouter);
 
 
 export default {
