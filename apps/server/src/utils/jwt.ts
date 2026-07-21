@@ -23,6 +23,9 @@ export function verifyAccessToken(token: string): TokenPayload {
   if (typeof decoded === "string") {
     throw new ApiError(401, "Invalid access token payload");
   }
+  if (!("userId" in decoded)) {
+    throw new ApiError(401, "Invalid token payload");
+  }
   return decoded as TokenPayload;
 }
 
@@ -30,6 +33,9 @@ export function verifyRefreshToken(token: string): TokenPayload {
   const decoded = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET!);
   if (typeof decoded === "string") {
     throw new ApiError(401, "Invalid refresh token payload");
+  }
+  if (!("userId" in decoded)) {
+    throw new ApiError(401, "Invalid token payload");
   }
   return decoded as TokenPayload;
 }
