@@ -1,19 +1,27 @@
-import { Hono } from "hono";
-import "dotenv/config";
-import authRouter from "./routes/auth.routes";
+import app from "#/app.js";
+import env from "#/configs/env.js";
+import { logger } from "#/middlewares/logger.js";
 
-const app = new Hono();
+void (async () => {
+  try {
+    const server = Bun.serve({
+      fetch: (request, server) => {
+        if (env.isDev) {
+          const ip = server.requestIP(request)?.address;
 
-app.get("/", (c) => {
-  return c.json({
-    message: "Hello Nexus API server!",
-  });
-});
+          if (ip) {
+            request.headers.set("x-client-ip", ip);
+          }
+        }
+        return app.fetch(request, server);
+      },
+      port: env.PORT,
+      maxRequestBodySize: env.BODY_LIMIT * 1024 * 1024,
+    });
 
-/// auth routes
-app.route("/auth", authRouter);
-
-export default {
-  port: 3000,
-  fetch: app.fetch,
-};
+    logger.info("Server is running at: %s", server.url);
+  } catch (err) {
+    logger.error({ err }, "Server startup failed!");
+    process.exit(1);
+  }
+})();
