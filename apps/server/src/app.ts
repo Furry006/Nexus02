@@ -6,9 +6,8 @@ import { ZodError } from "zod";
 import env from "#/configs/env.js";
 import { logger } from "#/middlewares/logger.js";
 import { configOpenAPI, createRouter } from "#/openapi/index.js";
-// import routes from "#/routes/index.js";
+import routes from "#/modules/index.js";
 import { HttpError, HttpResponse, HttpStatus } from "#/utils/http/index.js";
-
 
 const app = createRouter();
 
@@ -27,19 +26,24 @@ app.use(
   bodyLimit({
     maxSize: env.BODY_LIMIT * 1024 * 1024,
     onError: (ctx) => {
-      return HttpResponse.error(ctx, HttpStatus.REQUEST_TOO_LONG, "Request payload is too large!");
+      return HttpResponse.error(
+        ctx,
+        HttpStatus.REQUEST_TOO_LONG,
+        "Request payload is too large!",
+      );
     },
   }),
 );
 
 app.all("/", (ctx) => {
   if (env.isProd) return ctx.redirect(env.CORS_ORIGIN);
+  throw new HttpError(501, "Hello error");
   return HttpResponse.success(ctx, HttpStatus.OK, "Bun + Hono says hello!");
 });
 
 configOpenAPI(app);
 
-// app.route("/api", routes);
+app.route("/api", routes);
 
 app.onError((err, ctx) => {
   if (err instanceof HttpError) {
@@ -56,7 +60,11 @@ app.onError((err, ctx) => {
   }
 
   ctx.var.logger.error({ err }, "Unhandled server error!");
-  return HttpResponse.error(ctx, HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error!");
+  return HttpResponse.error(
+    ctx,
+    HttpStatus.INTERNAL_SERVER_ERROR,
+    "Internal server error!",
+  );
 });
 
 app.notFound((ctx) => {

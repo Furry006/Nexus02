@@ -1,0 +1,1 @@
+simple isme relations honge db ke 
