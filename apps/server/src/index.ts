@@ -10,6 +10,8 @@ app.get("/", (c) => {
   });
 });
 
+
+
 /// auth routes
 app.route("/auth", authRouter);
 
