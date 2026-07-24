@@ -21,6 +21,6 @@ export const logger = pino({
     paths: ["req.headers.cookie", "res.headers['set-cookie']"],
     remove: true,
   },
-  msgPrefix: "[SYNCHRONOUS] ",
+  msgPrefix: "[Nexus] ",
   ...otherOptions,
 });
