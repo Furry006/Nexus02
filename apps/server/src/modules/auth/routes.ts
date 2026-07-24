@@ -6,13 +6,14 @@ import {
   Tags,
 } from "#/openapi/index.js";
 import { HttpStatus, HttpPhrases } from "#/utils/http/index.js";
-import { registerSchema } from "./schemas.js";
-import { signUpHandler } from "./handlers.js";
+import { loginSchema, registerSchema } from "./schemas.js";
+import { logInHandler, logoutHandler ,signUpHandler } from "./handlers.js";
+
 
 export const signUpRoute = createRoute({
   tags: Tags.Auth,
   method: "post",
-  path: "/sign-up",
+  path: "/signup",
 
   request: {
     body: jsonContent(
@@ -29,5 +30,41 @@ export const signUpRoute = createRoute({
   },
 });
 
+export const logInRoute = createRoute({
+  tags: Tags.Auth,
+  method: "post",
+  path: "/login",
+  request: {
+    body: jsonContent(
+      loginSchema,
+      "User Login"
+    ),
+  },
+  responses: {
+    [HttpStatus.ACCEPTED]: jsonContent(
+      successSchema(),
+      HttpPhrases.ACCEPTED
+    ),
+  },
+})
+
+export const logoutRoute = createRoute({
+  tags: Tags.Auth,
+  method: "post",
+  path: "/logout",
+
+  responses: {
+    [HttpStatus.OK]: jsonContent(
+      successSchema(),
+      HttpPhrases.OK
+    ),
+  },
+});
+
+export type LogoutRoute = typeof logoutRoute;
 export type SignUpRoute = typeof signUpRoute;
-export const authRoute = createRouter().openapi(signUpRoute, signUpHandler)
+export type LogInRoute = typeof logInRoute;
+export const authRoute = createRouter()
+.openapi(signUpRoute, signUpHandler)
+.openapi(logInRoute, logInHandler)
+.openapi(logoutRoute, logoutHandler)

@@ -9,7 +9,7 @@ const configOptions = {
     contact: {
       name: "Nexus",
       url: "http://localhost:3000",
-      email: "synchronous@outlook.in",
+      email: "Nexus@google.com",
     },
 
     license: {
