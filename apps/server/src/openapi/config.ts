@@ -4,11 +4,11 @@ import type { AppOpenAPI } from "./types.js";
 const configOptions = {
   openapi: "3.1.0",
   info: {
-    title: "Synchronous Chat",
-    description: "Lightweight backend for synchronous chat.",
+    title: "Nexus",
+    description: "Lightweight backend for Nexus.",
     contact: {
-      name: "Synchronous Chat",
-      url: "https://synchronous.netlify.app",
+      name: "Nexus",
+      url: "http://localhost:3000",
       email: "synchronous@outlook.in",
     },
 
