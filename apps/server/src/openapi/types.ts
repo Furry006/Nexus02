@@ -1,11 +1,11 @@
 import type { OpenAPIHono, RouteConfig, RouteHandler } from "@hono/zod-openapi";
 import type { Schema } from "hono";
 import type { PinoLogger } from "hono-pino";
-// import type { UserInfo } from "#/utils/helpers.js";
+export type UserInfo = Record<string, unknown>;
 
 export interface AppVariables {
   logger: PinoLogger;
-  // user: UserInfo;
+  user: UserInfo;
 }
 
 export interface AppBindings {
