@@ -8,10 +8,8 @@ const env = cleanEnv(process.env, {
   REFRESH_SECRET: str(),
   REFRESH_EXPIRY: num(),
 
-  AWS_BUCKET_ACCESS: str(),
-  AWS_BUCKET_SECRET: str(),
-  AWS_REGION: str(),
-  AWS_BUCKET_NAME: str(),
+  CLOUD_API_SECRET: str(),
+  CLOUD_API_KEY: str(),
 
   BODY_LIMIT: num(),
   CORS_ORIGIN: str(),
