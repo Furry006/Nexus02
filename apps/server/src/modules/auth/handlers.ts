@@ -8,6 +8,7 @@ import type {
 import { HttpResponse, HttpStatus } from "#/utils/http/index.js";
 import { signUp, logIn, logout, refreshToken } from "./services.js";
 import { setAuthCookies } from "#/utils/helpers.js";
+import { getCookie } from "hono/cookie";
 
 export const signUpHandler: AppRouteHandler<SignUpRoute> = async (ctx) => {
   const body = ctx.req.valid("json");
@@ -39,16 +40,29 @@ export const logoutHandler: AppRouteHandler<LogoutRoute> = async (ctx) => {
 export const refreshTokenHandler: AppRouteHandler<RefreshTokenRoute> = async (
   c,
 ) => {
-  const token = c.req.cookie("refresh_token");
+  const token = getCookie(c, "refresh_token");
+
+  if (!token) {
+    return c.json(
+      {
+        success: false,
+        message: "Refresh token missing",
+      },
+      HttpStatus.UNAUTHORIZED,
+    );
+  }
 
   const { accessToken, refreshToken: newRefreshToken } =
     await refreshToken(token);
 
-  await setAuthCookies(c, accessToken, newRefreshToken);
+  setAuthCookies(c, accessToken, newRefreshToken);
+
   return c.json(
     {
       success: true,
+      message: "Token refreshed successfully",
     },
     HttpStatus.OK,
   );
 };
+  

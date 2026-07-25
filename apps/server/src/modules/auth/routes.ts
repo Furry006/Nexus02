@@ -3,6 +3,7 @@ import {
   createRouter,
   jsonContent,
   successSchema,
+  errorSchema,
   Tags,
 } from "#/openapi/index.js";
 import { HttpStatus, HttpPhrases } from "#/utils/http/index.js";
@@ -52,10 +53,22 @@ export const logoutRoute = createRoute({
 
 export const refreshTokenRoute = createRoute({
   tags: Tags.Auth,
-  method: "get",
-  path: "/",
+  method: "post",
+  path: "/refresh",
   responses: {
-    [HttpStatus.OK]: jsonContent(successSchema(), HttpPhrases.OK),
+    [HttpStatus.OK]: jsonContent(
+      successSchema({
+        message: "Token refreshed successfully",
+      }),
+      HttpPhrases.OK,
+    ),
+
+    [HttpStatus.UNAUTHORIZED]: jsonContent(
+      errorSchema({
+        message: "Refresh token missing",
+      }),
+      HttpPhrases.UNAUTHORIZED,
+    ),
   },
 });
 

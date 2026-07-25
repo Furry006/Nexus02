@@ -60,7 +60,14 @@ export const signUp = async (data: RegisterInput) => {
 
 type LoginInput = typeof loginSchema._output;
 
-export const logIn = async (data: LoginInput, c: Context) => {
+export const logIn = async (
+  data: LoginInput,
+  c: Context,
+): Promise<{
+  success: true;
+  message: string;
+  data: { id: string; username: string; email: string };
+}> => {
   //find user
   const user = await db.query.users.findFirst({
     where: eq(users.email, data.email),
@@ -96,7 +103,12 @@ export const logIn = async (data: LoginInput, c: Context) => {
   };
 };
 
-export const logout = async (c: Context) => {
+export const logout = async (
+  c: Context,
+): Promise<{
+  success: true;
+  message: string;
+}> => {
   await clearAuthCookies(c);
 
   return {
@@ -105,7 +117,12 @@ export const logout = async (c: Context) => {
   };
 };
 
-export const refreshToken = async (token: string) => {
+export const refreshToken = async (
+  token: string,
+): Promise<{
+  accessToken: string;
+  refreshToken: string;
+}> => {
   const payload = await verifyRefreshToken(token);
 
   const storedToken = await db.query.refreshTokens.findFirst({
@@ -117,7 +134,7 @@ export const refreshToken = async (token: string) => {
   }
 
   const user = await db.query.users.findFirst({
-    where: eq(users.id, payload.id as string),
+    where: eq(users.id, payload["id"] as string),
   });
   if (!user) {
     throw new Error("User Not Found");
