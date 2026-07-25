@@ -3,6 +3,8 @@ import { setCookie, deleteCookie } from "hono/cookie";
 import type { Context } from "hono";
 
 import env from "#/configs/env.js";
+import { db } from "#/db/index.js";
+import { refreshTokens } from "#/db/schemas/index.js";
 
 const accessSecret = new TextEncoder().encode(env.ACCESS_SECRET!);
 
@@ -35,7 +37,7 @@ export const generateRefreshToken = async (payload: JwtPayload) => {
   return generateToken(payload, refreshSecret, "7d");
 };
 
-//token verify
+// Token verify
 export const verifyAccessToken = async (token: string) => {
   const { payload } = await jwtVerify(token, accessSecret);
 
@@ -48,9 +50,21 @@ export const verifyRefreshToken = async (token: string) => {
   return payload;
 };
 
-// Cookie functions
+// Save refresh token
+export const saveRefreshToken = async (
+  userId: string,
+  token: string,
+  expiresAt: Date,
+) => {
+  await db.insert(refreshTokens).values({
+    userId,
+    token,
+    expiresAt,
+  });
+};
 
-export const setAuthCookies = async (
+// Cookie functions
+export const setAuthCookies = (
   c: Context,
   accessToken: string,
   refreshToken: string,
