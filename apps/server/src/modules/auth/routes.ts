@@ -7,8 +7,12 @@ import {
 } from "#/openapi/index.js";
 import { HttpStatus, HttpPhrases } from "#/utils/http/index.js";
 import { loginSchema, registerSchema } from "./schemas.js";
-import { logInHandler, logoutHandler ,signUpHandler } from "./handlers.js";
-
+import {
+  logInHandler,
+  logoutHandler,
+  refreshTokenHandler,
+  signUpHandler,
+} from "./handlers.js";
 
 export const signUpRoute = createRoute({
   tags: Tags.Auth,
@@ -16,17 +20,11 @@ export const signUpRoute = createRoute({
   path: "/signup",
 
   request: {
-    body: jsonContent(
-      registerSchema,
-      "Register user"
-    ),
+    body: jsonContent(registerSchema, "Register user"),
   },
 
   responses: {
-    [HttpStatus.CREATED]: jsonContent(
-      successSchema(),
-      HttpPhrases.CREATED
-    ),
+    [HttpStatus.CREATED]: jsonContent(successSchema(), HttpPhrases.CREATED),
   },
 });
 
@@ -35,18 +33,12 @@ export const logInRoute = createRoute({
   method: "post",
   path: "/login",
   request: {
-    body: jsonContent(
-      loginSchema,
-      "User Login"
-    ),
+    body: jsonContent(loginSchema, "User Login"),
   },
   responses: {
-    [HttpStatus.ACCEPTED]: jsonContent(
-      successSchema(),
-      HttpPhrases.ACCEPTED
-    ),
+    [HttpStatus.ACCEPTED]: jsonContent(successSchema(), HttpPhrases.ACCEPTED),
   },
-})
+});
 
 export const logoutRoute = createRoute({
   tags: Tags.Auth,
@@ -54,17 +46,25 @@ export const logoutRoute = createRoute({
   path: "/logout",
 
   responses: {
-    [HttpStatus.OK]: jsonContent(
-      successSchema(),
-      HttpPhrases.OK
-    ),
+    [HttpStatus.OK]: jsonContent(successSchema(), HttpPhrases.OK),
+  },
+});
+
+export const refreshTokenRoute = createRoute({
+  tags: Tags.Auth,
+  method: "get",
+  path: "/",
+  responses: {
+    [HttpStatus.OK]: jsonContent(successSchema(), HttpPhrases.OK),
   },
 });
 
 export type LogoutRoute = typeof logoutRoute;
 export type SignUpRoute = typeof signUpRoute;
 export type LogInRoute = typeof logInRoute;
+export type RefreshTokenRoute = typeof refreshTokenRoute;
 export const authRoute = createRouter()
-.openapi(signUpRoute, signUpHandler)
-.openapi(logInRoute, logInHandler)
-.openapi(logoutRoute, logoutHandler)
+  .openapi(signUpRoute, signUpHandler)
+  .openapi(logInRoute, logInHandler)
+  .openapi(logoutRoute, logoutHandler)
+  .openapi(refreshTokenRoute, refreshTokenHandler);

@@ -9,7 +9,10 @@ import {
   generateAccessToken,
   generateRefreshToken,
   setAuthCookies,
+  clearAuthCookies,
+  verifyRefreshToken,
 } from "#/utils/helpers.js";
+import { refreshTokens } from "#/db/schemas/refresh-token.js";
 
 type RegisterInput = typeof registerSchema._output;
 
@@ -55,23 +58,21 @@ export const signUp = async (data: RegisterInput) => {
   return user;
 };
 
-type LoginSchema = typeof loginSchema
+type LoginInput = typeof loginSchema._output;
 
-export const logIn = async (data: LoginSchema, c: Context) => {
+export const logIn = async (data: LoginInput, c: Context) => {
   //find user
   const user = await db.query.users.findFirst({
     where: eq(users.email, data.email),
   });
   if (!user) {
-    throw new Error("Invaild email or password");
+    throw new Error("Invalid email or password");
   }
-
   //verify password
   const isPasswordValid = await argon2.verify(user.password, data.password);
   if (!isPasswordValid) {
-    throw new Error("Invalid Password");
+    throw new Error("Invalid email or password");
   }
-
   //generate access token
   const accessToken = await generateAccessToken({
     id: user.id,
@@ -82,10 +83,8 @@ export const logIn = async (data: LoginSchema, c: Context) => {
     id: user.id,
     email: user.email,
   });
-
   //set Cookies
   await setAuthCookies(c, accessToken, refreshToken);
-
   return {
     success: true,
     message: "Login Successfully",
@@ -98,10 +97,39 @@ export const logIn = async (data: LoginSchema, c: Context) => {
 };
 
 export const logout = async (c: Context) => {
-  clearAuthCookies(c);
+  await clearAuthCookies(c);
 
   return {
     success: true,
     message: "Logout successful",
+  };
+};
+
+export const refreshToken = async (token: string) => {
+  const payload = await verifyRefreshToken(token);
+
+  const storedToken = await db.query.refreshTokens.findFirst({
+    where: eq(refreshTokens.token, token),
+  });
+
+  if (!storedToken) {
+    throw new Error("Refresh token not found");
+  }
+
+  const user = await db.query.users.findFirst({
+    where: eq(users.id, payload.id as string),
+  });
+  if (!user) {
+    throw new Error("User Not Found");
+  }
+
+  const accessToken = await generateAccessToken({
+    id: user.id,
+    email: user.email,
+  });
+
+  return {
+    accessToken,
+    refreshToken: token,
   };
 };
