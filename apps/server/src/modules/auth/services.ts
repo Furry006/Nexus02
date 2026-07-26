@@ -1,6 +1,6 @@
 import { eq, or } from "drizzle-orm";
 import * as argon2 from "argon2";
-
+import {z} from "zod"
 import { db } from "#/db/index.js";
 import { users } from "#/db/schemas/user.js";
 import { registerSchema, loginSchema } from "./schemas.js";
@@ -58,7 +58,7 @@ export const signUp = async (data: RegisterInput) => {
   return user;
 };
 
-type LoginInput = typeof loginSchema._output;
+type LoginInput = z.infer<typeof loginSchema> ;
 
 export const logIn = async (
   data: LoginInput,
