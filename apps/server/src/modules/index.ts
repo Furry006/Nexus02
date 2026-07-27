@@ -8,6 +8,7 @@ import {
 } from "#/openapi/index.js";
 import { HttpResponse, HttpPhrases, HttpStatus } from "#/utils/http/index.js";
 import { authRoute } from "./auth/routes.js";
+import { authRoute as userRoute } from "./user/routes.js";
 
 const helloRoute = createRoute({
   tags: ["Hello"],
@@ -32,9 +33,10 @@ const helloHandler: AppRouteHandler<typeof helloRoute> = (ctx) => {
   return HttpResponse.success(ctx, HttpStatus.OK, "hello is working", name);
 };
 
-const router = createRouter()
+const router = createRouter();
 
-router.openapi(helloRoute, helloHandler)
-router.route("/auth", authRoute)
+router.openapi(helloRoute, helloHandler);
+router.route("/auth", authRoute);
+router.route("/user", userRoute);
 
 export default router;

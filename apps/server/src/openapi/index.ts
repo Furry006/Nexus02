@@ -5,6 +5,5 @@ export * from "./types.js";
 
 export const Tags = {
   Auth: ["Auth"],
-  Message: ["Message"],
   User: ["User"],
 };

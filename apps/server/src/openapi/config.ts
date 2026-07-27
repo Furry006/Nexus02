@@ -8,7 +8,7 @@ const configOptions = {
     description: "Lightweight backend for Nexus.",
     contact: {
       name: "Nexus",
-      url: "http://localhost:3000",
+      url: "http://localhost:6173",
       email: "Nexus@google.com",
     },
 
