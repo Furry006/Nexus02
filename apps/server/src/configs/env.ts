@@ -8,8 +8,9 @@ const env = cleanEnv(process.env, {
   REFRESH_SECRET: str(),
   REFRESH_EXPIRY: num(),
 
-  CLOUD_API_SECRET: str(),
-  CLOUD_API_KEY: str(),
+  CLOUDINARY_CLOUD_NAME : str(),
+  CLOUDINARY_API_KEY : str(),
+  CLOUDINARY_API_SECRET : str(),
 
   BODY_LIMIT: num(),
   CORS_ORIGIN: str(),

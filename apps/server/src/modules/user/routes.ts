@@ -10,7 +10,7 @@ import { HttpStatus, HttpPhrases } from "#/utils/http/index.js";
 import { changePasswordHandler } from "./handlers.js";
 
 export const changePasswordRoute = createRoute({
-  tags: Tags.Auth,
+  tags: Tags.User,
   method: "patch",
   path: "/change-password",
   responses: {
