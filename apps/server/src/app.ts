@@ -3,6 +3,7 @@ import { cors } from "hono/cors";
 import { requestId } from "hono/request-id";
 import { pinoLogger } from "hono-pino";
 import { ZodError } from "zod";
+
 import env from "#/configs/env.js";
 import { logger } from "#/middlewares/logger.js";
 import { configOpenAPI, createRouter } from "#/openapi/index.js";
@@ -37,12 +38,17 @@ app.use(
 
 app.all("/", (ctx) => {
   if (env.isProd) return ctx.redirect(env.CORS_ORIGIN);
-  throw new HttpError(501, "Hello error");
-  return HttpResponse.success(ctx, HttpStatus.OK, "Bun + Hono says hello!");
+
+  return HttpResponse.success(
+    ctx,
+    HttpStatus.OK,
+    "Bun + Hono says hello!",
+  );
 });
 
 configOpenAPI(app);
 
+// Register all modules once
 app.route("/api", routes);
 
 app.onError((err, ctx) => {
@@ -59,7 +65,19 @@ app.onError((err, ctx) => {
     );
   }
 
+  if (
+    err instanceof SyntaxError &&
+    /JSON|Unexpected token|Unexpected end of JSON/.test(err.message)
+  ) {
+    return HttpResponse.error(
+      ctx,
+      HttpStatus.BAD_REQUEST,
+      "Invalid JSON payload",
+    );
+  }
+
   ctx.var.logger.error({ err }, "Unhandled server error!");
+
   return HttpResponse.error(
     ctx,
     HttpStatus.INTERNAL_SERVER_ERROR,
@@ -68,8 +86,11 @@ app.onError((err, ctx) => {
 });
 
 app.notFound((ctx) => {
-  const message = `Requested url '${ctx.req.path}' not found on the server!`;
-  return HttpResponse.error(ctx, HttpStatus.NOT_FOUND, message);
+  return HttpResponse.error(
+    ctx,
+    HttpStatus.NOT_FOUND,
+    `Requested url '${ctx.req.path}' not found on the server!`,
+  );
 });
 
 export default app;

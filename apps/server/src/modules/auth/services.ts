@@ -13,6 +13,7 @@ import {
   verifyRefreshToken,
   saveRefreshToken,
 } from "#/utils/helpers.js";
+import { HttpError, HttpStatus } from "#/utils/http/index.js";
 import { refreshTokens } from "#/db/schemas/refresh-token.js";
 
 type RegisterInput = typeof registerSchema._output;
@@ -31,11 +32,11 @@ export const signUp = async (data: RegisterInput) => {
 
   if (existingUser) {
     if (existingUser.email === email) {
-      throw new Error("Email already exists");
+      throw new HttpError(HttpStatus.CONFLICT, "Email already exists");
     }
 
     if (existingUser.username === username) {
-      throw new Error("Username already exists");
+      throw new HttpError(HttpStatus.CONFLICT, "Username already exists");
     }
   }
 
@@ -75,12 +76,12 @@ export const logIn = async (
     where: eq(users.email, data.email),
   });
   if (!user) {
-    throw new Error("Invalid email or password");
+    throw new HttpError(HttpStatus.UNAUTHORIZED, "Invalid email or password");
   }
   //verify password
   const isPasswordValid = await argon2.verify(user.password, data.password);
   if (!isPasswordValid) {
-    throw new Error("Invalid email or password");
+    throw new HttpError(HttpStatus.UNAUTHORIZED, "Invalid email or password");
   }
   //generate access token
   const accessToken = await generateAccessToken({
@@ -138,14 +139,14 @@ export const refreshToken = async (
   });
 
   if (!storedToken) {
-    throw new Error("Refresh token not found");
+    throw new HttpError(HttpStatus.UNAUTHORIZED, "Refresh token not found");
   }
 
   const user = await db.query.users.findFirst({
     where: eq(users.id, payload["id"] as string),
   });
   if (!user) {
-    throw new Error("User Not Found");
+    throw new HttpError(HttpStatus.NOT_FOUND, "User Not Found");
   }
 
   const accessToken = await generateAccessToken({

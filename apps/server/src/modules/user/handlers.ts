@@ -8,7 +8,17 @@ export const changePasswordHandler: AppRouteHandler<
 > = async (c) => {
   const body = c.req.valid("json" as never);
 
-  const user = c.get("user") as { id: string };
+  const user = c.get("user") as { id?: string } | undefined;
+
+  if (!user?.id) {
+    return c.json(
+      {
+        success: false,
+        message: "Unauthorized",
+      },
+      HttpStatus.UNAUTHORIZED,
+    );
+  }
 
   const result = await changePassword(user.id, body);
 

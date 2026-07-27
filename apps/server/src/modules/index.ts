@@ -1,4 +1,5 @@
 import { createRoute, z } from "@hono/zod-openapi";
+
 import {
   createRouter,
   successSchema,
@@ -6,9 +7,11 @@ import {
   type AppRouteHandler,
   queryParams,
 } from "#/openapi/index.js";
-import { HttpResponse, HttpPhrases, HttpStatus } from "#/utils/http/index.js";
+
+import { HttpPhrases, HttpResponse, HttpStatus } from "#/utils/http/index.js";
+
 import { authRoute } from "./auth/routes.js";
-import { authRoute as userRoute } from "./user/routes.js";
+import { userRoute } from "./user/routes.js";
 
 const helloRoute = createRoute({
   tags: ["Hello"],
@@ -30,12 +33,15 @@ const helloRoute = createRoute({
 
 const helloHandler: AppRouteHandler<typeof helloRoute> = (ctx) => {
   const { name } = ctx.req.valid("query");
+
   return HttpResponse.success(ctx, HttpStatus.OK, "hello is working", name);
 };
 
 const router = createRouter();
 
 router.openapi(helloRoute, helloHandler);
+
+// Modules
 router.route("/auth", authRoute);
 router.route("/user", userRoute);
 

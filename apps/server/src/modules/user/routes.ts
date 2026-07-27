@@ -30,4 +30,4 @@ export const changePasswordRoute = createRoute({
 });
 
 export type ChangePasswordRoute = typeof changePasswordRoute;
-export const authRoute = createRouter().openapi(changePasswordRoute, changePasswordHandler);
+export const userRoute = createRouter().openapi(changePasswordRoute, changePasswordHandler);
