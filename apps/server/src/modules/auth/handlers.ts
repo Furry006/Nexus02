@@ -4,10 +4,9 @@ import type {
   LogInRoute,
   RefreshTokenRoute,
   LogoutRoute,
-  ChangePasswordRoute,
 } from "./routes.js";
 import { HttpResponse, HttpStatus } from "#/utils/http/index.js";
-import { signUp, logIn, logout, refreshToken, changePassword } from "./services.js";
+import { signUp, logIn, logout, refreshToken } from "./services.js";
 import { setAuthCookies } from "#/utils/helpers.js";
 import { getCookie } from "hono/cookie";
 
@@ -67,14 +66,3 @@ export const refreshTokenHandler: AppRouteHandler<RefreshTokenRoute> = async (
   );
 };
 
-export const changePasswordHandler: AppRouteHandler<ChangePasswordRoute> = async (
-  c,
-) => {
-  const body = c.req.valid("json" as never);
-
-  const user = c.get("user") as { id: string };
-
-  const result = await changePassword(user.id, body);
-
-  return c.json(result, HttpStatus.OK);
-};
