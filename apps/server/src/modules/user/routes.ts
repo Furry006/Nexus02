@@ -7,7 +7,27 @@ import {
   Tags,
 } from "#/openapi/index.js";
 import { HttpStatus, HttpPhrases } from "#/utils/http/index.js";
-import { changePasswordHandler } from "./handlers.js";
+import { changePasswordHandler, getMeHandler } from "./handlers.js";
+
+export const getMeRoute = createRoute({
+  tags: Tags.User,
+  method: "get",
+  path: "/me",
+  responses: {
+    [HttpStatus.OK]: jsonContent(
+      successSchema({
+        message: "User find",
+      }),
+      HttpPhrases.OK,
+    ),
+    [HttpStatus.UNAUTHORIZED]: jsonContent(
+      errorSchema({
+        message: "Unauthorized",
+      }),
+      HttpPhrases.UNAUTHORIZED,
+    ),
+  },
+});
 
 export const changePasswordRoute = createRoute({
   tags: Tags.User,
@@ -30,4 +50,7 @@ export const changePasswordRoute = createRoute({
 });
 
 export type ChangePasswordRoute = typeof changePasswordRoute;
-export const userRoute = createRouter().openapi(changePasswordRoute, changePasswordHandler);
+export type GetMeRoute = typeof getMeRoute;
+export const userRoute = createRouter()
+  .openapi(changePasswordRoute, changePasswordHandler)
+  .openapi(getMeRoute, getMeHandler);

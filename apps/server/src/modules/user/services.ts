@@ -1,6 +1,5 @@
 import { eq } from "drizzle-orm";
 import * as argon2 from "argon2";
-
 import { db } from "#/db/index.js";
 import { users } from "#/db/schemas/user.js";
 import { refreshTokens } from "#/db/schemas/refresh-token.js";
@@ -51,4 +50,27 @@ export const changePassword = async (
     success: true as const,
     message: "Password changed successfully",
   };
+};
+
+export const getMe = async (userId: string) => {
+  const user = await db.query.users.findFirst({
+    where: eq(users.id, userId),
+    columns: {
+      id: true,
+      username: true,
+      fullName: true,
+      email: true,
+      avatar: true,
+      isVerified: true,
+      createdAt: true,
+      updatedAt: true,
+      password: false,
+    },
+  });
+
+  if (!user) {
+    throw new HttpError(HttpStatus.NOT_FOUND, "User not found");
+  }
+
+  return user;
 };
