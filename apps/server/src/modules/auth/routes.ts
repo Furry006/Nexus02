@@ -13,6 +13,7 @@ import {
   logoutHandler,
   refreshTokenHandler,
   signUpHandler,
+  changePasswordHandler,
 } from "./handlers.js";
 
 export const signUpRoute = createRoute({
@@ -72,12 +73,34 @@ export const refreshTokenRoute = createRoute({
   },
 });
 
+export const changePasswordRoute = createRoute({
+  tags: Tags.Auth,
+  method: "patch",
+  path: "/change-password",
+  responses: {
+    [HttpStatus.OK] : jsonContent(
+      successSchema({
+        message: "Password Changed Successfully"
+      }),
+      HttpPhrases.OK,
+    ),
+    [HttpStatus.UNAUTHORIZED] : jsonContent(
+      errorSchema({
+        message: "Password is inccorrect",
+      }),
+      HttpPhrases.UNAUTHORIZED,
+    ),
+  },
+})
+
 export type LogoutRoute = typeof logoutRoute;
 export type SignUpRoute = typeof signUpRoute;
 export type LogInRoute = typeof logInRoute;
+export type ChangePasswordRoute = typeof changePasswordRoute;
 export type RefreshTokenRoute = typeof refreshTokenRoute;
 export const authRoute = createRouter()
   .openapi(signUpRoute, signUpHandler)
   .openapi(logInRoute, logInHandler)
   .openapi(logoutRoute, logoutHandler)
-  .openapi(refreshTokenRoute, refreshTokenHandler);
+  .openapi(refreshTokenRoute, refreshTokenHandler)
+  .openapi(changePasswordRoute,changePasswordHandler)
