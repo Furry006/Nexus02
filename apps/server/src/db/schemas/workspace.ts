@@ -1,10 +1,4 @@
-import {
-  pgTable,
-  uuid,
-  varchar,
-  text,
-  timestamp,
-} from "drizzle-orm/pg-core";
+import { pgTable, uuid, varchar, text, timestamp } from "drizzle-orm/pg-core";
 
 import { users } from "./index.js";
 
@@ -23,11 +17,9 @@ export const workspaces = pgTable("workspaces", {
       onDelete: "cascade",
     }),
 
-  createdAt: timestamp("created_at")
-    .defaultNow()
-    .notNull(),
+  inviteCode: varchar("invite-code", { length: 10 }).notNull().unique(),
 
-  updatedAt: timestamp("updated_at")
-    .defaultNow()
-    .notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
