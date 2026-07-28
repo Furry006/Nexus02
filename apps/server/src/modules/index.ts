@@ -12,6 +12,7 @@ import { HttpPhrases, HttpResponse, HttpStatus } from "#/utils/http/index.js";
 
 import { authRoute } from "./auth/routes.js";
 import { userRoute } from "./user/routes.js";
+import { workspaceRoute } from "./workspace/routes.js";
 
 const helloRoute = createRoute({
   tags: ["Hello"],
@@ -44,5 +45,6 @@ router.openapi(helloRoute, helloHandler);
 // Modules
 router.route("/auth", authRoute);
 router.route("/user", userRoute);
+router.route("/workspace", workspaceRoute);
 
 export default router;
