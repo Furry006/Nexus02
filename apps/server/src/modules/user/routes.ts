@@ -16,6 +16,7 @@ export const getMeRoute = createRoute({
   tags: Tags.User,
   method: "get",
   path: "/me",
+  middleware: [authMiddleware],
   responses: {
     [HttpStatus.OK]: jsonContent(
       successSchema({
