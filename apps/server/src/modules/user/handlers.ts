@@ -4,7 +4,7 @@ import { HttpResponse, HttpStatus } from "#/utils/http/index.js";
 import { changePassword, getMe } from "./services.js";
 
 export const changePasswordHandler: AppRouteHandler<ChangePasswordRoute> = async (c) => {
-  const body = c.req.valid("json" as never);
+  const body = c.req.valid("json");
 
   const user = c.get("user") as { id?: string } | undefined;
 

@@ -5,9 +5,12 @@ import {
   successSchema,
   errorSchema,
   Tags,
+  jsonRequired,
 } from "#/openapi/index.js";
 import { HttpStatus, HttpPhrases } from "#/utils/http/index.js";
+import { authMiddleware } from "#/middlewares/auth.js";
 import { changePasswordHandler, getMeHandler } from "./handlers.js";
+import { changePasswordSchema } from "./schemas.js";
 
 export const getMeRoute = createRoute({
   tags: Tags.User,
@@ -33,6 +36,10 @@ export const changePasswordRoute = createRoute({
   tags: Tags.User,
   method: "patch",
   path: "/change-password",
+  middleware: [authMiddleware],
+  request: {
+    body: jsonRequired(changePasswordSchema, "Change password payload")
+  },
   responses: {
     [HttpStatus.OK]: jsonContent(
       successSchema({

@@ -29,3 +29,4 @@ export const authMiddleware = createMiddleware(async (c, next) => {
     });
   }
 });
+
