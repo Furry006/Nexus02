@@ -17,7 +17,7 @@ export const workspaces = pgTable("workspaces", {
       onDelete: "cascade",
     }),
 
-  inviteCode: varchar("invite-code", { length: 10 }).notNull().unique(),
+  inviteCode: varchar("invite_code", { length: 10 }).notNull().unique(),
 
   createdAt: timestamp("created_at").defaultNow().notNull(),
 
