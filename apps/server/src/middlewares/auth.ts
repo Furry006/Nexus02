@@ -1,17 +1,14 @@
 import { createMiddleware } from "hono/factory";
 import { getCookie } from "hono/cookie";
-import { HTTPException } from "hono/http-exception";
 
 import { verifyAccessToken } from "#/utils/helpers.js";
-import { HttpStatus } from "#/utils/http/index.js";
+import { HttpError, HttpStatus } from "#/utils/http/index.js";
 
 export const authMiddleware = createMiddleware(async (c, next) => {
   const token = getCookie(c, "access_token");
 
   if (!token) {
-    throw new HTTPException(HttpStatus.UNAUTHORIZED, {
-      message: "Unauthorized",
-    });
+    throw new HttpError(HttpStatus.UNAUTHORIZED, "Unauthorized");
   }
 
   try {
@@ -24,9 +21,7 @@ export const authMiddleware = createMiddleware(async (c, next) => {
 
     await next();
   } catch {
-    throw new HTTPException(HttpStatus.UNAUTHORIZED, {
-      message: "Invalid or expired access token",
-    });
+    throw new HttpError(HttpStatus.UNAUTHORIZED, "Invalid or expired access token");
   }
 });
 

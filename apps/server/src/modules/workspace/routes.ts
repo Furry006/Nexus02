@@ -7,13 +7,15 @@ import {
   Tags,
 } from "#/openapi/index.js";
 import { HttpPhrases, HttpStatus } from "#/utils/http/index.js";
+import { authMiddleware } from "#/middlewares/auth.js";
 import { createWorkspaceSchema } from "./schemas.js";
 import { createWorkspaceHandler } from "./handlers.js";
 
 export const createWorkspaceRoute = createRoute({
   tags: Tags.Workspace,
   method: "post",
-  path: "/",
+  path: "/create",
+  middleware: [authMiddleware],
 
   request: {
     body: jsonContent(createWorkspaceSchema, "Create workspace payload"),

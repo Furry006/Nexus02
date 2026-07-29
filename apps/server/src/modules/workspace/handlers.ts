@@ -3,12 +3,18 @@ import type { CreateWorkspaceRoute } from "./routes.js";
 import { HttpResponse, HttpStatus } from "#/utils/http/index.js";
 import { createWorkspace } from "./services.js";
 
-export const createWorkspaceHandler: AppRouteHandler<
-  CreateWorkspaceRoute
-> = async (c) => {
+export const createWorkspaceHandler: AppRouteHandler<CreateWorkspaceRoute> = async (c) => {
   const body = c.req.valid("json");
 
-  const user = c.get("user") as { id: string };
+  const user = c.get("user") as { id: string } | undefined;
+
+  if (!user?.id) {
+    return HttpResponse.error(
+      c,
+      HttpStatus.UNAUTHORIZED,
+      "Unauthorized",
+    );
+  }
 
   const workspace = await createWorkspace({
     ...body,
