@@ -1,8 +1,8 @@
 import { createMiddleware } from "hono/factory";
 import { getCookie } from "hono/cookie";
-
 import { verifyAccessToken } from "#/utils/helpers.js";
 import { HttpError, HttpStatus } from "#/utils/http/index.js";
+
 
 export const authMiddleware = createMiddleware(async (c, next) => {
   const token = getCookie(c, "access_token");
