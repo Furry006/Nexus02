@@ -1,30 +1,45 @@
+import { eq } from "drizzle-orm";
+import type { z } from "zod";
+
 import { db } from "#/db/index.js";
 import { workspaceMembers, workspaces } from "#/db/schemas/index.js";
 import { generateInviteCode } from "#/utils/helpers.js";
+import { HttpError } from "#/utils/http/error.js";
+import { HttpStatus } from "#/utils/http/index.js";
+import { createWorkspaceSchema, updateWorkspaceSchema } from "./schemas.js";
 
-type CreateWorkspaceInput = {
+type CreateWorkspaceInput = z.infer<typeof createWorkspaceSchema> & {
   ownerId: string;
-  name: string;
-  description?: string;
 };
 
+type UpdateWorkspaceInput = z.infer<typeof updateWorkspaceSchema> & {
+  workspaceId: string;
+  userId: string;
+};
 export const createWorkspace = async ({
   ownerId,
   name,
   description,
 }: CreateWorkspaceInput) => {
-  return await db.transaction(async (c) => {
-    const insertedWorkspaces = await c
+  return db.transaction(async (tx) => {
+    const [workspace] = await tx
       .insert(workspaces)
-      .values({ name, description, ownerId, inviteCode: generateInviteCode() })
+      .values({
+        name,
+        description,
+        ownerId,
+        inviteCode: generateInviteCode(),
+      })
       .returning();
 
-    const workspace = insertedWorkspaces[0];
     if (!workspace) {
-      throw new Error("Failed to create workspace");
+      throw new HttpError(
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        "Failed to create workspace",
+      );
     }
 
-    await c.insert(workspaceMembers).values({
+    await tx.insert(workspaceMembers).values({
       workspaceId: workspace.id,
       userId: ownerId,
       role: "owner",
@@ -32,4 +47,38 @@ export const createWorkspace = async ({
 
     return workspace;
   });
+};
+
+export const updateWorkspace = async ({
+  workspaceId,
+  userId,
+  name,
+  description,
+}: UpdateWorkspaceInput) => {
+  const workspace = await db.query.workspaces.findFirst({
+    where: eq(workspaces.id, workspaceId),
+  });
+
+  if (!workspace) {
+    throw new HttpError(HttpStatus.NOT_FOUND, "Workspace not found");
+  }
+
+  if (workspace.ownerId !== userId) {
+    throw new HttpError(
+      HttpStatus.FORBIDDEN,
+      "You are not allowed to update this workspace",
+    );
+  }
+
+  const [updatedWorkspace] = await db
+    .update(workspaces)
+    .set({
+      name,
+      description,
+      updatedAt: new Date(),
+    })
+    .where(eq(workspaces.id, workspaceId))
+    .returning();
+
+  return updatedWorkspace;
 };

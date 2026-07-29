@@ -1,7 +1,7 @@
 import type { AppRouteHandler } from "#/openapi/index.js";
-import type { CreateWorkspaceRoute } from "./routes.js";
+import type { CreateWorkspaceRoute, UpdateWorkspaceRoute } from "./routes.js";
 import { HttpResponse, HttpStatus } from "#/utils/http/index.js";
-import { createWorkspace } from "./services.js";
+import { createWorkspace, updateWorkspace } from "./services.js";
 
 export const createWorkspaceHandler: AppRouteHandler<CreateWorkspaceRoute> = async (c) => {
   const body = c.req.valid("json");
@@ -9,23 +9,42 @@ export const createWorkspaceHandler: AppRouteHandler<CreateWorkspaceRoute> = asy
   const user = c.get("user") as { id: string } | undefined;
 
   if (!user?.id) {
-    return HttpResponse.error(
-      c,
-      HttpStatus.UNAUTHORIZED,
-      "Unauthorized",
-    );
+    return HttpResponse.error(c, HttpStatus.UNAUTHORIZED, "Unauthorized");
   }
 
   const workspace = await createWorkspace({
     ...body,
     ownerId: user.id,
-    description: body.description ?? "",
   });
 
   return HttpResponse.success(
     c,
     HttpStatus.CREATED,
     "Workspace created successfully",
+    workspace,
+  );
+};
+
+export const updateWorkspaceHandler: AppRouteHandler<UpdateWorkspaceRoute> = async (c) => {
+  const body = c.req.valid("json");
+  const { workspaceId } = c.req.param();
+
+  const user = c.get("user") as { id: string } | undefined;
+
+  if (!user?.id) {
+    return HttpResponse.error(c, HttpStatus.UNAUTHORIZED, "Unauthorized");
+  }
+
+  const workspace = await updateWorkspace({
+    workspaceId,
+    userId: user.id,
+    ...body,
+  });
+
+  return HttpResponse.success(
+    c,
+    HttpStatus.OK,
+    "Workspace updated successfully",
     workspace,
   );
 };
