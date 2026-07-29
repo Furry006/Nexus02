@@ -11,11 +11,6 @@ import { createWorkspaceSchema, updateWorkspaceSchema } from "./schemas.js";
 type CreateWorkspaceInput = z.infer<typeof createWorkspaceSchema> & {
   ownerId: string;
 };
-
-type UpdateWorkspaceInput = z.infer<typeof updateWorkspaceSchema> & {
-  workspaceId: string;
-  userId: string;
-};
 export const createWorkspace = async ({
   ownerId,
   name,
@@ -49,6 +44,10 @@ export const createWorkspace = async ({
   });
 };
 
+type UpdateWorkspaceInput = z.infer<typeof updateWorkspaceSchema> & {
+  workspaceId: string;
+  userId: string;
+};
 export const updateWorkspace = async ({
   workspaceId,
   userId,
@@ -81,4 +80,35 @@ export const updateWorkspace = async ({
     .returning();
 
   return updatedWorkspace;
+};
+
+type DeleteWorkspaceInput = {
+  workspaceId: string;
+  userId: string;
+};
+export const deleteWorkspace = async ({
+  workspaceId,
+  userId,
+}: DeleteWorkspaceInput): Promise<void> => {
+  const workspace = await db.query.workspaces.findFirst({
+    where: eq(workspaces.id, workspaceId),
+  });
+
+  if (!workspace) {
+    throw new HttpError(
+      HttpStatus.NOT_FOUND,
+      "Workspace not found",
+    );
+  }
+
+  if (workspace.ownerId !== userId) {
+    throw new HttpError(
+      HttpStatus.FORBIDDEN,
+      "You are not allowed to perform this action",
+    );
+  }
+
+  await db
+    .delete(workspaces)
+    .where(eq(workspaces.id, workspaceId));
 };

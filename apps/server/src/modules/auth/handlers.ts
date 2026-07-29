@@ -65,4 +65,3 @@ export const refreshTokenHandler: AppRouteHandler<RefreshTokenRoute> = async (
     HttpStatus.OK,
   );
 };
-
