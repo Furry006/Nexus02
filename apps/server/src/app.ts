@@ -3,7 +3,6 @@ import { cors } from "hono/cors";
 import { requestId } from "hono/request-id";
 import { pinoLogger } from "hono-pino";
 import { ZodError } from "zod";
-
 import env from "#/configs/env.js";
 import { logger } from "#/middlewares/logger.js";
 import { configOpenAPI, createRouter } from "#/openapi/index.js";
@@ -39,11 +38,7 @@ app.use(
 app.all("/", (ctx) => {
   if (env.isProd) return ctx.redirect(env.CORS_ORIGIN);
 
-  return HttpResponse.success(
-    ctx,
-    HttpStatus.OK,
-    "Bun + Hono says hello!",
-  );
+  return HttpResponse.success(ctx, HttpStatus.OK, "Bun + Hono says hello!");
 });
 
 configOpenAPI(app);
