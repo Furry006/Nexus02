@@ -1,6 +1,7 @@
 import { SignJWT, jwtVerify } from "jose";
 import { setCookie, deleteCookie } from "hono/cookie";
 import type { Context } from "hono";
+import { customAlphabet } from "nanoid";
 
 import env from "#/configs/env.js";
 import { db } from "#/db/index.js";
@@ -94,4 +95,11 @@ export const clearAuthCookies = (c: Context) => {
   deleteCookie(c, "refresh_token", {
     path: "/",
   });
+};
+
+/// Invite Code fn
+const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ1234567890";
+const codeGenerator = customAlphabet(alphabet, 10);
+export const generateInviteCode = () => {
+  return codeGenerator();
 };
