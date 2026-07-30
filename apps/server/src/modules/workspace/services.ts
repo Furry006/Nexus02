@@ -138,6 +138,24 @@ export const getWorkspace = async ({
   return workspace;
 };
 
-type GetMyWorkspaceInput = {
-  
-}
+export const getMyWorkspace = async (userId: string) => {
+  const workspacesList = await db
+    .select({
+      id: workspaces.id,
+      name: workspaces.name,
+      description: workspaces.description,
+      ownerId: workspaces.ownerId,
+      inviteCode: workspaces.inviteCode,
+      createdAt: workspaces.createdAt,
+      updatedAt: workspaces.updatedAt,
+      role: workspaceMembers.role,
+    })
+    .from(workspaceMembers)
+    .innerJoin(
+      workspaces,
+      eq(workspaceMembers.workspaceId, workspaces.id),
+    )
+    .where(eq(workspaceMembers.userId, userId));
+
+  return workspacesList;
+};
