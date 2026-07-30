@@ -12,11 +12,10 @@ import {
   updateWorkspace,
   deleteWorkspace,
   getWorkspace,
+  getMyWorkspace,
 } from "./services.js";
 
-export const createWorkspaceHandler: AppRouteHandler<
-  CreateWorkspaceRoute
-> = async (c) => {
+export const createWorkspaceHandler: AppRouteHandler<CreateWorkspaceRoute> = async (c) => {
   const body = c.req.valid("json");
 
   const user = c.get("user") as { id: string } | undefined;
@@ -38,9 +37,7 @@ export const createWorkspaceHandler: AppRouteHandler<
   );
 };
 
-export const updateWorkspaceHandler: AppRouteHandler<
-  UpdateWorkspaceRoute
-> = async (c) => {
+export const updateWorkspaceHandler: AppRouteHandler<UpdateWorkspaceRoute> = async (c) => {
   const body = c.req.valid("json");
   const { workspaceId } = c.req.param();
 
@@ -64,9 +61,7 @@ export const updateWorkspaceHandler: AppRouteHandler<
   );
 };
 
-export const deleteWorkspaceHandler: AppRouteHandler<
-  DeleteWorkspaceRoute
-> = async (c) => {
+export const deleteWorkspaceHandler: AppRouteHandler<DeleteWorkspaceRoute> = async (c) => {
   const { workspaceId } = c.req.param();
   const user = c.get("user") as { id: string } | undefined;
   if (!user?.id) {
