@@ -13,6 +13,8 @@ import {
   createWorkspaceHandler,
   deleteWorkspaceHandler,
   updateWorkspaceHandler,
+  getWorkspaceHandler,
+  getMyWorkspaceHandler,
 } from "./handlers.js";
 
 export const createWorkspaceRoute = createRoute({
@@ -98,10 +100,69 @@ export const deleteWorkspaceRoute = createRoute({
   },
 });
 
+export const getWorkspaceRoute = createRoute({
+  tags: Tags.Workspace,
+  method: "get",
+  path: "/:workspaceId",
+  middleware: [authMiddleware],
+  responses: {
+    [HttpStatus.OK]: jsonContent(
+      successSchema({
+        message: "Workspace fetched successfully",
+      }),
+      "Workspace fetched successfully",
+    ),
+    [HttpStatus.UNAUTHORIZED]: jsonContent(
+      errorSchema({
+        message: "Unauthorized",
+      }),
+      HttpPhrases.UNAUTHORIZED,
+    ),
+    [HttpStatus.FORBIDDEN]: jsonContent(
+      errorSchema({
+        message: "You are not a member of this workspace",
+      }),
+      HttpPhrases.FORBIDDEN,
+    ),
+    [HttpStatus.NOT_FOUND]: jsonContent(
+      errorSchema({
+        message: "Workspace not found",
+      }),
+      HttpPhrases.NOT_FOUND,
+    ),
+  },
+});
+
+export const getMyWorkspaceRoute = createRoute({
+  tags: Tags.Workspace,
+  method: "get",
+  path: "/my/workspaces",
+  middleware: [authMiddleware],
+
+  responses: {
+    [HttpStatus.OK]: jsonContent(
+      successSchema({
+        message: "All workspaces successfully"
+      }),
+      "All Workspaces Fetched Successfully",
+    ),
+    [HttpStatus.UNAUTHORIZED]: jsonContent(
+      errorSchema({
+        message: "unauthorized to get workspaces"
+      }),
+      HttpPhrases.UNAUTHORIZED
+    )
+  }
+});
+
 export type CreateWorkspaceRoute = typeof createWorkspaceRoute;
 export type UpdateWorkspaceRoute = typeof updateWorkspaceRoute;
 export type DeleteWorkspaceRoute = typeof deleteWorkspaceRoute;
+export type GetWorkspaceRoute = typeof getWorkspaceRoute;
+export type GetMyWorkspaceRoute = typeof getMyWorkspaceRoute;
 export const workspaceRoute = createRouter()
   .openapi(createWorkspaceRoute, createWorkspaceHandler)
   .openapi(updateWorkspaceRoute, updateWorkspaceHandler)
-  .openapi(deleteWorkspaceRoute, deleteWorkspaceHandler);
+  .openapi(deleteWorkspaceRoute, deleteWorkspaceHandler)
+  .openapi(getWorkspaceRoute, getWorkspaceHandler)
+  .openapi(getMyWorkspaceRoute, getMyWorkspaceHandler )

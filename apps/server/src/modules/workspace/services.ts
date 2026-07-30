@@ -1,6 +1,5 @@
-import { eq } from "drizzle-orm";
 import type { z } from "zod";
-
+import { and, eq } from "drizzle-orm";
 import { db } from "#/db/index.js";
 import { workspaceMembers, workspaces } from "#/db/schemas/index.js";
 import { generateInviteCode } from "#/utils/helpers.js";
@@ -95,12 +94,8 @@ export const deleteWorkspace = async ({
   });
 
   if (!workspace) {
-    throw new HttpError(
-      HttpStatus.NOT_FOUND,
-      "Workspace not found",
-    );
+    throw new HttpError(HttpStatus.NOT_FOUND, "Workspace not found");
   }
-
   if (workspace.ownerId !== userId) {
     throw new HttpError(
       HttpStatus.FORBIDDEN,
@@ -108,7 +103,41 @@ export const deleteWorkspace = async ({
     );
   }
 
-  await db
-    .delete(workspaces)
-    .where(eq(workspaces.id, workspaceId));
+  await db.delete(workspaces).where(eq(workspaces.id, workspaceId));
 };
+
+type GetWorkspaceInput = {
+  workspaceId: string;
+  userId: string;
+};
+export const getWorkspace = async ({
+  workspaceId,
+  userId,
+}: GetWorkspaceInput) => {
+  // 1. Find workspace
+  const workspace = await db.query.workspaces.findFirst({
+    where: eq(workspaces.id, workspaceId),
+  });
+  if (!workspace) {
+    throw new HttpError(HttpStatus.NOT_FOUND, "Workspace not found");
+  }
+  // 2. Check membership
+  const member = await db.query.workspaceMembers.findFirst({
+    where: and(
+      eq(workspaceMembers.workspaceId, workspaceId),
+      eq(workspaceMembers.userId, userId),
+    ),
+  });
+  if (!member) {
+    throw new HttpError(
+      HttpStatus.FORBIDDEN,
+      "You are not a member of this workspace",
+    );
+  }
+  // 3. Return workspace
+  return workspace;
+};
+
+type GetMyWorkspaceInput = {
+  
+}
