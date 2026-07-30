@@ -151,11 +151,45 @@ export const getMyWorkspace = async (userId: string) => {
       role: workspaceMembers.role,
     })
     .from(workspaceMembers)
-    .innerJoin(
-      workspaces,
-      eq(workspaceMembers.workspaceId, workspaces.id),
-    )
+    .innerJoin(workspaces, eq(workspaceMembers.workspaceId, workspaces.id))
     .where(eq(workspaceMembers.userId, userId));
 
   return workspacesList;
+};
+
+type JoinWorkspaceInput = {
+  userId: string;
+  inviteCode: string;
+};
+export const joinWorkspace = async ({
+  userId,
+  inviteCode,
+}: JoinWorkspaceInput) => {
+  const workspace = await db.query.workspaces.findFirst({
+    where: eq(workspaces.inviteCode, inviteCode),
+  });
+  if (!workspace) {
+    throw new HttpError(HttpStatus.NOT_FOUND, "Invalid Invite Code");
+  }
+
+  const member = await db.query.workspaceMembers.findFirst({
+    where: and(
+      eq(workspaceMembers.workspaceId, workspace.id),
+      eq(workspaceMembers.userId, userId),
+    ),
+  });
+  if (member) {
+    throw new HttpError(
+      HttpStatus.CONFLICT,
+      "You are already a member of this workspace",
+    );
+  }
+
+  await db.insert(workspaceMembers).values({
+    workspaceId: workspace.id,
+    userId,
+    role: "memeber",
+  });
+
+  return workspace;
 };

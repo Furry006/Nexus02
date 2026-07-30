@@ -8,13 +8,18 @@ import {
 } from "#/openapi/index.js";
 import { HttpPhrases, HttpStatus } from "#/utils/http/index.js";
 import { authMiddleware } from "#/middlewares/auth.js";
-import { createWorkspaceSchema, updateWorkspaceSchema } from "./schemas.js";
+import {
+  createWorkspaceSchema,
+  joinWorkspaceSchema,
+  updateWorkspaceSchema,
+} from "./schemas.js";
 import {
   createWorkspaceHandler,
   deleteWorkspaceHandler,
   updateWorkspaceHandler,
   getWorkspaceHandler,
   getMyWorkspaceHandler,
+  joinWorkspaceHandler,
 } from "./handlers.js";
 
 export const createWorkspaceRoute = createRoute({
@@ -136,23 +141,48 @@ export const getWorkspaceRoute = createRoute({
 export const getMyWorkspaceRoute = createRoute({
   tags: Tags.Workspace,
   method: "get",
-  path: "/my/workspaces",
+  path: "/my",
   middleware: [authMiddleware],
 
   responses: {
     [HttpStatus.OK]: jsonContent(
       successSchema({
-        message: "All workspaces successfully"
+        message: "All workspaces successfully",
       }),
       "All Workspaces Fetched Successfully",
     ),
     [HttpStatus.UNAUTHORIZED]: jsonContent(
       errorSchema({
-        message: "unauthorized to get workspaces"
+        message: "unauthorized to get workspaces",
       }),
-      HttpPhrases.UNAUTHORIZED
-    )
-  }
+      HttpPhrases.UNAUTHORIZED,
+    ),
+  },
+});
+
+export const joinWorkspaceRoute = createRoute({
+  tags: Tags.Workspace,
+  method: "post",
+  path: "/:workspaceId/join",
+  middleware: [authMiddleware],
+  request: {
+    body: jsonContent(joinWorkspaceSchema, "Join workspace payload"),
+  },
+
+  responses: {
+    [HttpStatus.OK]: jsonContent(
+      successSchema({
+        message: "Success",
+      }),
+      "join workspace successfully",
+    ),
+    [HttpStatus.UNAUTHORIZED]: jsonContent(
+      errorSchema({
+        message: "Not allowed to join this workspace",
+      }),
+      HttpPhrases.UNAUTHORIZED,
+    ),
+  },
 });
 
 export type CreateWorkspaceRoute = typeof createWorkspaceRoute;
@@ -160,9 +190,11 @@ export type UpdateWorkspaceRoute = typeof updateWorkspaceRoute;
 export type DeleteWorkspaceRoute = typeof deleteWorkspaceRoute;
 export type GetWorkspaceRoute = typeof getWorkspaceRoute;
 export type GetMyWorkspaceRoute = typeof getMyWorkspaceRoute;
+export type JoinWorkspaceRoute = typeof joinWorkspaceRoute;
 export const workspaceRoute = createRouter()
   .openapi(createWorkspaceRoute, createWorkspaceHandler)
   .openapi(updateWorkspaceRoute, updateWorkspaceHandler)
   .openapi(deleteWorkspaceRoute, deleteWorkspaceHandler)
   .openapi(getWorkspaceRoute, getWorkspaceHandler)
-  .openapi(getMyWorkspaceRoute, getMyWorkspaceHandler )
+  .openapi(getMyWorkspaceRoute, getMyWorkspaceHandler)
+  .openapi(joinWorkspaceRoute, joinWorkspaceHandler);

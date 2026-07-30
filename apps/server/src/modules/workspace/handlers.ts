@@ -5,6 +5,7 @@ import type {
   GetWorkspaceRoute,
   UpdateWorkspaceRoute,
   GetMyWorkspaceRoute,
+  JoinWorkspaceRoute,
 } from "./routes.js";
 import { HttpResponse, HttpStatus } from "#/utils/http/index.js";
 import {
@@ -13,6 +14,7 @@ import {
   deleteWorkspace,
   getWorkspace,
   getMyWorkspace,
+  joinWorkspace,
 } from "./services.js";
 
 export const createWorkspaceHandler: AppRouteHandler<CreateWorkspaceRoute> = async (c) => {
@@ -111,5 +113,27 @@ export const getMyWorkspaceHandler: AppRouteHandler<GetMyWorkspaceRoute> = async
     HttpStatus.OK,
     "Workspace fetched successfully",
     workspaces,
+  );
+};
+
+export const joinWorkspaceHandler: AppRouteHandler<JoinWorkspaceRoute> = async (c) => {
+  const body = c.req.valid("json");
+
+  const user = c.get("user") as { id: string } | undefined;
+
+  if (!user?.id) {
+    return HttpResponse.error(c, HttpStatus.UNAUTHORIZED, "Unauthorized");
+  }
+
+  const workspace = await joinWorkspace({
+    inviteCode: body.inviteCode,
+    userId: user.id,
+  });
+
+  return HttpResponse.success(
+    c,
+    HttpStatus.OK,
+    "Workspace joined successfully",
+    workspace,
   );
 };

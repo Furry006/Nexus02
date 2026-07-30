@@ -38,3 +38,12 @@ export const updateWorkspaceSchema = z.object({
     })
     .optional(),
 });
+
+export const joinWorkspaceSchema = z.object({
+  inviteCode: z
+    .string()
+    .trim()
+    .length(10, {
+      message: "Invalid invite code",
+    }),
+});
