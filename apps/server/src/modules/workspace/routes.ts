@@ -21,6 +21,7 @@ import {
   getWorkspaceHandler,
   getMyWorkspaceHandler,
   joinWorkspaceHandler,
+  leaveWorkspaceHandler,
 } from "./handlers.js";
 
 export const createWorkspaceRoute = createRoute({
@@ -244,4 +245,4 @@ export const workspaceRoute = createRouter()
   .openapi(getWorkspaceRoute, getWorkspaceHandler)
   .openapi(getMyWorkspaceRoute, getMyWorkspaceHandler)
   .openapi(joinWorkspaceRoute, joinWorkspaceHandler)
-  .openapi(leaveWorkspaceRoute, leaveWorkspaceHandler)
+  .openapi(leaveWorkspaceRoute, leaveWorkspaceHandler);
