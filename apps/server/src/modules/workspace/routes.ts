@@ -165,7 +165,7 @@ export const getMyWorkspaceRoute = createRoute({
 export const joinWorkspaceRoute = createRoute({
   tags: Tags.Workspace,
   method: "post",
-  path: "/:workspaceId/join",
+  path: "/join/:workspaceId",
   middleware: [authMiddleware],
   request: {
     body: jsonContent(joinWorkspaceSchema, "Join workspace payload"),
@@ -190,7 +190,7 @@ export const joinWorkspaceRoute = createRoute({
 export const leaveWorkspaceRoute = createRoute({
   tags: Tags.Workspace,
   method: "post",
-  path: "/:workspaceId/leave",
+  path: "/leave/:workspaceId",
   middleware: [authMiddleware],
 
   request: {
