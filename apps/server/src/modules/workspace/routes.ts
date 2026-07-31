@@ -12,6 +12,7 @@ import {
   createWorkspaceSchema,
   joinWorkspaceSchema,
   updateWorkspaceSchema,
+  workspaceParamsSchema,
 } from "./schemas.js";
 import {
   createWorkspaceHandler,
@@ -185,16 +186,62 @@ export const joinWorkspaceRoute = createRoute({
   },
 });
 
+export const leaveWorkspaceRoute = createRoute({
+  tags: Tags.Workspace,
+  method: "post",
+  path: "/:workspaceId/leave",
+  middleware: [authMiddleware],
+
+  request: {
+    params: workspaceParamsSchema,
+  },
+
+  responses: {
+    [HttpStatus.OK]: jsonContent(
+      successSchema({
+        message: "Left workspace successfully",
+      }),
+      "Left workspace successfully",
+    ),
+    [HttpStatus.UNAUTHORIZED]: jsonContent(
+      errorSchema({
+        message: "Unauthorized",
+      }),
+      "Unauthorized",
+    ),
+    [HttpStatus.NOT_FOUND]: jsonContent(
+      errorSchema({
+        message: "Workspace or membership not found",
+      }),
+      "Workspace or membership not found",
+    ),
+    [HttpStatus.CONFLICT]: jsonContent(
+      errorSchema({
+        message: "Owner cannot leave the workspace",
+      }),
+      "Owner cannot leave the workspace",
+    ),
+    [HttpStatus.INTERNAL_SERVER_ERROR]: jsonContent(
+      errorSchema({
+        message: "Something went wrong",
+      }),
+      "Internal server error",
+    ),
+  },
+});
+
 export type CreateWorkspaceRoute = typeof createWorkspaceRoute;
 export type UpdateWorkspaceRoute = typeof updateWorkspaceRoute;
 export type DeleteWorkspaceRoute = typeof deleteWorkspaceRoute;
 export type GetWorkspaceRoute = typeof getWorkspaceRoute;
 export type GetMyWorkspaceRoute = typeof getMyWorkspaceRoute;
 export type JoinWorkspaceRoute = typeof joinWorkspaceRoute;
+export type LeaveWorkspaceRoute = typeof leaveWorkspaceRoute;
 export const workspaceRoute = createRouter()
   .openapi(createWorkspaceRoute, createWorkspaceHandler)
   .openapi(updateWorkspaceRoute, updateWorkspaceHandler)
   .openapi(deleteWorkspaceRoute, deleteWorkspaceHandler)
   .openapi(getWorkspaceRoute, getWorkspaceHandler)
   .openapi(getMyWorkspaceRoute, getMyWorkspaceHandler)
-  .openapi(joinWorkspaceRoute, joinWorkspaceHandler);
+  .openapi(joinWorkspaceRoute, joinWorkspaceHandler)
+  .openapi(leaveWorkspaceRoute, leaveWorkspaceHandler)

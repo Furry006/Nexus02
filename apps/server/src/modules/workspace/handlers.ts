@@ -6,6 +6,7 @@ import type {
   UpdateWorkspaceRoute,
   GetMyWorkspaceRoute,
   JoinWorkspaceRoute,
+  LeaveWorkspaceRoute,
 } from "./routes.js";
 import { HttpResponse, HttpStatus } from "#/utils/http/index.js";
 import {
@@ -15,7 +16,9 @@ import {
   getWorkspace,
   getMyWorkspace,
   joinWorkspace,
+  leaveWorkspace
 } from "./services.js";
+import { success } from "#/utils/http/response.js";
 
 export const createWorkspaceHandler: AppRouteHandler<CreateWorkspaceRoute> = async (c) => {
   const body = c.req.valid("json");
@@ -135,5 +138,25 @@ export const joinWorkspaceHandler: AppRouteHandler<JoinWorkspaceRoute> = async (
     HttpStatus.OK,
     "Workspace joined successfully",
     workspace,
+  );
+};
+
+export const leaveWorkspaceHandler: AppRouteHandler<LeaveWorkspaceRoute> = async (c) => {
+  const { workspaceId } = c.req.valid("param");
+  const user = c.get("user") as { id: string } | undefined;
+
+  if (!user?.id) {
+    return HttpResponse.error(c, HttpStatus.UNAUTHORIZED, "Unauthorized");
+  }
+
+  await leaveWorkspace({
+    workspaceId,
+    userId: user.id,
+  });
+
+  return success(
+    c,
+    HttpStatus.OK,
+    "Left workspace successfully",
   );
 };

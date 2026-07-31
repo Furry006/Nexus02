@@ -47,3 +47,7 @@ export const joinWorkspaceSchema = z.object({
       message: "Invalid invite code",
     }),
 });
+
+export const workspaceParamsSchema = z.object({
+  workspaceId: z.uuid()
+})

@@ -193,3 +193,40 @@ export const joinWorkspace = async ({
 
   return workspace;
 };
+
+type LeaveWorkspaceInput = {
+  workspaceId: string;
+  userId: string;
+};
+export const leaveWorkspace = async ({
+  workspaceId,
+  userId,
+}: LeaveWorkspaceInput) => {
+  const member = await db.query.workspaceMembers.findFirst({
+    where: and(
+      eq(workspaceMembers.workspaceId, workspaceId),
+      eq(workspaceMembers.userId, userId),
+    ),
+  });
+  if (!member) {
+    throw new HttpError(
+      HttpStatus.NOT_FOUND,
+      "Workspace membership not found",
+    );
+  }
+  if (member.role === "owner") {
+    throw new HttpError(
+      HttpStatus.FORBIDDEN,
+      "Workspace owners cannot leave their workspace",
+    );
+  }
+
+  await db
+    .delete(workspaceMembers)
+    .where(
+      and(
+        eq(workspaceMembers.workspaceId, workspaceId),
+        eq(workspaceMembers.userId, userId),
+      ),
+    );
+};
