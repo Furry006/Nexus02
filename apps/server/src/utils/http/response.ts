@@ -2,16 +2,19 @@ import type { Context } from "hono";
 import type { ContentfulStatusCode } from "hono/utils/http-status";
 
 type ErrorResponse<E = unknown> = { success: false; message: string; error?: E };
-type SuccessResponse<T = unknown> = { success: true; message: string; result?: T };
+type SuccessResponse<T = unknown> = { success: true; message: string; data?: T; result?: T };
 
 export const success = <C extends Context, S extends ContentfulStatusCode, T>(
   ctx: C,
   status: S,
   message: string,
-  result?: T,
+  data?: T,
 ) => {
   const response: SuccessResponse<T> = { success: true, message };
-  if (result !== undefined) response.result = result;
+  if (data !== undefined) {
+    response.data = data;
+    response.result = data;
+  }
   return ctx.json<SuccessResponse<T>, S>(response, status);
 };
 

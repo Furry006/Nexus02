@@ -49,5 +49,5 @@ export const joinWorkspaceSchema = z.object({
 });
 
 export const workspaceParamsSchema = z.object({
-  workspaceId: z.uuid()
+  workspaceId: z.string().uuid()
 })

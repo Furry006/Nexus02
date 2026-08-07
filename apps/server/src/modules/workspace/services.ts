@@ -188,7 +188,7 @@ export const joinWorkspace = async ({
   await db.insert(workspaceMembers).values({
     workspaceId: workspace.id,
     userId,
-    role: "memeber",
+    role: "member",
   });
 
   return workspace;

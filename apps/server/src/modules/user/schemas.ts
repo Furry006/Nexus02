@@ -13,7 +13,7 @@ export const userSchema = z.object({
   id: z.string(),
   username: z.string(),
   fullName: z.string(),
-  email: z.email(),
+  email: z.string().email(),
   avatar: z.string().nullable(),
   isVerified: z.boolean(),
   createdAt: z.string(),
