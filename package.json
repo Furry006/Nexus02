@@ -3,6 +3,14 @@
   "module": "index.ts",
   "type": "module",
   "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "bun --filter '*' dev",
+    "dev:server": "bun --filter server dev",
+    "dev:client": "bun --filter client dev"
+  },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
     "@types/bun": "latest",
@@ -17,3 +25,4 @@
     "jsonwebtoken": "^9.0.3"
   }
 }
+
