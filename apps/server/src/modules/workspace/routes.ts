@@ -242,7 +242,7 @@ export const workspaceRoute = createRouter()
   .openapi(createWorkspaceRoute, createWorkspaceHandler)
   .openapi(updateWorkspaceRoute, updateWorkspaceHandler)
   .openapi(deleteWorkspaceRoute, deleteWorkspaceHandler)
-  .openapi(getWorkspaceRoute, getWorkspaceHandler)
   .openapi(getMyWorkspaceRoute, getMyWorkspaceHandler)
+  .openapi(getWorkspaceRoute, getWorkspaceHandler)
   .openapi(joinWorkspaceRoute, joinWorkspaceHandler)
   .openapi(leaveWorkspaceRoute, leaveWorkspaceHandler);
