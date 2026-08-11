@@ -1,122 +1,31 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import React from 'react';
+import { Toaster } from 'sonner';
+import { HeroSection } from './components/HeroSection';
+import { AuthCard } from './components/AuthCard';
 
-function App() {
-  const [count, setCount] = useState(0)
-
+export function App() {
   return (
     <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+      <Toaster position="top-right" theme="dark" richColors />
+      <main className="min-h-screen lg:h-screen w-full grid grid-cols-1 lg:grid-cols-12 bg-[#08080a] text-zinc-100 antialiased selection:bg-purple-500/20 selection:text-purple-300 overflow-y-auto lg:overflow-hidden">
+        {/* Left Section - ~55% split on desktop (7 of 12 cols) */}
+        <section className="lg:col-span-7 h-full relative flex flex-col border-b lg:border-b-0 lg:border-r border-zinc-800/40 overflow-hidden">
+          <HeroSection />
+        </section>
 
-      <div className="ticks"></div>
+        {/* Right Section - ~45% split on desktop (5 of 12 cols) */}
+        <section className="lg:col-span-5 h-full relative flex items-center justify-center p-6 sm:p-12 lg:p-14 bg-[#08080a] overflow-y-auto">
+          {/* Soft background ambient gradient behind auth card */}
+          <div className="absolute w-72 h-72 rounded-full bg-purple-900/10 blur-[100px] pointer-events-none" />
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
+          <div className="w-full relative z-10 max-w-md my-auto">
+            <AuthCard />
+          </div>
+        </section>
+      </main>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
+
