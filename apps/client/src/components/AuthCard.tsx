@@ -1,24 +1,50 @@
-import React, { useState } from 'react';
-import { motion } from 'motion/react';
-import { Mail, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import { Mail, Lock, User, AtSign, Eye, EyeOff, ArrowRight } from 'lucide-react';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'sonner';
 
 export const AuthCard: React.FC = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const isSignUpPage = location.pathname === '/signup';
+  const [isSignUp, setIsSignUp] = useState(isSignUpPage);
+
+  // Sync state with URL location
+  useEffect(() => {
+    setIsSignUp(location.pathname === '/signup');
+  }, [location.pathname]);
+
+  // Login form state
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+
+  // Sign Up form state
+  const [fullName, setFullName] = useState('');
+  const [username, setUsername] = useState('');
+  const [signUpEmail, setSignUpEmail] = useState('');
+  const [signUpPassword, setSignUpPassword] = useState('');
+  const [showSignUpPassword, setShowSignUpPassword] = useState(false);
+
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const toggleMode = (targetSignUp: boolean) => {
+    setIsSignUp(targetSignUp);
+    navigate(targetSignUp ? '/signup' : '/login');
+  };
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
       const response = await axios.post('/api/auth/login', {
-        email,
-        password,
+        email: loginEmail,
+        password: loginPassword,
       });
 
       const message = response.data?.message || 'Signed in successfully!';
@@ -28,6 +54,37 @@ export const AuthCard: React.FC = () => {
         err.response?.data?.message ||
         err.response?.data?.error ||
         'Authentication failed. Please check your credentials.';
+      toast.error(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSignUp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      const response = await axios.post('/api/auth/signup', {
+        fullName,
+        username,
+        email: signUpEmail,
+        password: signUpPassword,
+      });
+
+      const message = response.data?.message || 'Account created successfully!';
+      toast.success(`${message} Please sign in.`);
+      
+      // Auto-prefill login email and switch to login view
+      setLoginEmail(signUpEmail);
+      toggleMode(false);
+    } catch (err: any) {
+      const errorMessage =
+        err.response?.data?.message ||
+        err.response?.data?.error ||
+        (Array.isArray(err.response?.data?.details)
+          ? err.response.data.details.map((d: any) => d.message).join(', ')
+          : 'Registration failed. Please check your details.');
       toast.error(errorMessage);
     } finally {
       setIsLoading(false);
@@ -46,120 +103,281 @@ export const AuthCard: React.FC = () => {
         {/* Subtle top edge highlight */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-[1px] bg-gradient-to-r from-transparent via-purple-500/30 to-transparent" />
 
-        {/* Card Header */}
-        <div className="mb-7 text-left">
-          <h2 className="text-2xl font-bold tracking-tight text-white font-sans">
-            Welcome back
-          </h2>
-          <p className="text-sm text-zinc-400 mt-1">
-            Sign in to continue to Nexus.
-          </p>
-        </div>
-
-        {/* Auth Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Email Input */}
-          <div className="space-y-1.5">
-            <label 
-              htmlFor="email" 
-              className="block text-xs font-medium text-zinc-300"
+        <AnimatePresence mode="wait">
+          {isSignUp ? (
+            <motion.div
+              key="signup"
+              initial={{ opacity: 0, x: 10 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -10 }}
+              transition={{ duration: 0.2 }}
             >
-              Email
-            </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-500">
-                <Mail className="w-4 h-4" />
+              {/* Card Header */}
+              <div className="mb-6 text-left">
+                <h2 className="text-2xl font-bold tracking-tight text-white font-sans">
+                  Create an account
+                </h2>
+                <p className="text-sm text-zinc-400 mt-1">
+                  Sign up to get started with Nexus.
+                </p>
               </div>
-              <input
-                id="email"
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com"
-                className="w-full h-11 pl-10 pr-3.5 rounded-lg bg-zinc-900/60 border border-zinc-800/80 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-purple-500/80 focus:ring-2 focus:ring-purple-500/20 transition-all duration-150"
-              />
-            </div>
-          </div>
 
-          {/* Password Input */}
-          <div className="space-y-1.5">
-            <label 
-              htmlFor="password" 
-              className="block text-xs font-medium text-zinc-300"
+              {/* Sign Up Form */}
+              <form onSubmit={handleSignUp} className="space-y-3.5">
+                {/* Full Name Input */}
+                <div className="space-y-1.5">
+                  <label 
+                    htmlFor="fullName" 
+                    className="block text-xs font-medium text-zinc-300"
+                  >
+                    Full Name
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-500">
+                      <User className="w-4 h-4" />
+                    </div>
+                    <input
+                      id="fullName"
+                      type="text"
+                      required
+                      minLength={3}
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      placeholder="John Doe"
+                      className="w-full h-10 pl-10 pr-3.5 rounded-lg bg-zinc-900/60 border border-zinc-800/80 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-purple-500/80 focus:ring-2 focus:ring-purple-500/20 transition-all duration-150"
+                    />
+                  </div>
+                </div>
+
+                {/* Username Input */}
+                <div className="space-y-1.5">
+                  <label 
+                    htmlFor="username" 
+                    className="block text-xs font-medium text-zinc-300"
+                  >
+                    Username
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-500">
+                      <AtSign className="w-4 h-4" />
+                    </div>
+                    <input
+                      id="username"
+                      type="text"
+                      required
+                      minLength={3}
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      placeholder="johndoe"
+                      className="w-full h-10 pl-10 pr-3.5 rounded-lg bg-zinc-900/60 border border-zinc-800/80 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-purple-500/80 focus:ring-2 focus:ring-purple-500/20 transition-all duration-150"
+                    />
+                  </div>
+                </div>
+
+                {/* Email Input */}
+                <div className="space-y-1.5">
+                  <label 
+                    htmlFor="signUpEmail" 
+                    className="block text-xs font-medium text-zinc-300"
+                  >
+                    Email
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-500">
+                      <Mail className="w-4 h-4" />
+                    </div>
+                    <input
+                      id="signUpEmail"
+                      type="email"
+                      required
+                      value={signUpEmail}
+                      onChange={(e) => setSignUpEmail(e.target.value)}
+                      placeholder="you@example.com"
+                      className="w-full h-10 pl-10 pr-3.5 rounded-lg bg-zinc-900/60 border border-zinc-800/80 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-purple-500/80 focus:ring-2 focus:ring-purple-500/20 transition-all duration-150"
+                    />
+                  </div>
+                </div>
+
+                {/* Password Input */}
+                <div className="space-y-1.5">
+                  <label 
+                    htmlFor="signUpPassword" 
+                    className="block text-xs font-medium text-zinc-300"
+                  >
+                    Password
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-500">
+                      <Lock className="w-4 h-4" />
+                    </div>
+                    <input
+                      id="signUpPassword"
+                      type={showSignUpPassword ? 'text' : 'password'}
+                      required
+                      minLength={8}
+                      value={signUpPassword}
+                      onChange={(e) => setSignUpPassword(e.target.value)}
+                      placeholder="•••••••• (min. 8 characters)"
+                      className="w-full h-10 pl-10 pr-10 rounded-lg bg-zinc-900/60 border border-zinc-800/80 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-purple-500/80 focus:ring-2 focus:ring-purple-500/20 transition-all duration-150"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowSignUpPassword(!showSignUpPassword)}
+                      className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-zinc-500 hover:text-zinc-300 transition-colors focus:outline-none"
+                      tabIndex={-1}
+                      aria-label={showSignUpPassword ? 'Hide password' : 'Show password'}
+                    >
+                      {showSignUpPassword ? (
+                        <EyeOff className="w-4 h-4" />
+                      ) : (
+                        <Eye className="w-4 h-4" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Submit Button */}
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full h-11 mt-3 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-medium text-sm shadow-md shadow-purple-950/40 transition-all duration-200 active:scale-[0.99] flex items-center justify-center gap-2 group disabled:opacity-70 disabled:cursor-not-allowed"
+                >
+                  {isLoading ? (
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  ) : (
+                    <>
+                      <span>Create account</span>
+                      <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5" />
+                    </>
+                  )}
+                </button>
+              </form>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="login"
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 10 }}
+              transition={{ duration: 0.2 }}
             >
-              Password
-            </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-500">
-                <Lock className="w-4 h-4" />
+              {/* Card Header */}
+              <div className="mb-7 text-left">
+                <h2 className="text-2xl font-bold tracking-tight text-white font-sans">
+                  Welcome back
+                </h2>
+                <p className="text-sm text-zinc-400 mt-1">
+                  Sign in to continue to Nexus.
+                </p>
               </div>
-              <input
-                id="password"
-                type={showPassword ? 'text' : 'password'}
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full h-11 pl-10 pr-10 rounded-lg bg-zinc-900/60 border border-zinc-800/80 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-purple-500/80 focus:ring-2 focus:ring-purple-500/20 transition-all duration-150"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-zinc-500 hover:text-zinc-300 transition-colors focus:outline-none"
-                tabIndex={-1}
-                aria-label={showPassword ? 'Hide password' : 'Show password'}
-              >
-                {showPassword ? (
-                  <EyeOff className="w-4 h-4" />
-                ) : (
-                  <Eye className="w-4 h-4" />
-                )}
-              </button>
-            </div>
-          </div>
 
-          {/* Remember me & Forgot Password */}
-          <div className="flex items-center justify-between pt-1 pb-1 text-xs">
-            <label className="flex items-center gap-2 cursor-pointer group">
-              <input
-                type="checkbox"
-                checked={rememberMe}
-                onChange={(e) => setRememberMe(e.target.checked)}
-                className="w-4 h-4 rounded border-zinc-800 bg-zinc-900 text-purple-600 focus:ring-purple-500/20 focus:ring-offset-0 transition-colors cursor-pointer accent-purple-600"
-              />
-              <span className="text-zinc-400 group-hover:text-zinc-300 transition-colors">
-                Remember me
-              </span>
-            </label>
+              {/* Login Form */}
+              <form onSubmit={handleLogin} className="space-y-4">
+                {/* Email Input */}
+                <div className="space-y-1.5">
+                  <label 
+                    htmlFor="loginEmail" 
+                    className="block text-xs font-medium text-zinc-300"
+                  >
+                    Email
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-500">
+                      <Mail className="w-4 h-4" />
+                    </div>
+                    <input
+                      id="loginEmail"
+                      type="email"
+                      required
+                      value={loginEmail}
+                      onChange={(e) => setLoginEmail(e.target.value)}
+                      placeholder="you@example.com"
+                      className="w-full h-11 pl-10 pr-3.5 rounded-lg bg-zinc-900/60 border border-zinc-800/80 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-purple-500/80 focus:ring-2 focus:ring-purple-500/20 transition-all duration-150"
+                    />
+                  </div>
+                </div>
 
-            <a
-              href="#forgot-password"
-              className="text-purple-400 hover:text-purple-300 font-medium transition-colors focus:outline-none focus:underline"
-            >
-              Forgot password?
-            </a>
-          </div>
+                {/* Password Input */}
+                <div className="space-y-1.5">
+                  <label 
+                    htmlFor="loginPassword" 
+                    className="block text-xs font-medium text-zinc-300"
+                  >
+                    Password
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-500">
+                      <Lock className="w-4 h-4" />
+                    </div>
+                    <input
+                      id="loginPassword"
+                      type={showLoginPassword ? 'text' : 'password'}
+                      required
+                      value={loginPassword}
+                      onChange={(e) => setLoginPassword(e.target.value)}
+                      placeholder="••••••••"
+                      className="w-full h-11 pl-10 pr-10 rounded-lg bg-zinc-900/60 border border-zinc-800/80 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-purple-500/80 focus:ring-2 focus:ring-purple-500/20 transition-all duration-150"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowLoginPassword(!showLoginPassword)}
+                      className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-zinc-500 hover:text-zinc-300 transition-colors focus:outline-none"
+                      tabIndex={-1}
+                      aria-label={showLoginPassword ? 'Hide password' : 'Show password'}
+                    >
+                      {showLoginPassword ? (
+                        <EyeOff className="w-4 h-4" />
+                      ) : (
+                        <Eye className="w-4 h-4" />
+                      )}
+                    </button>
+                  </div>
+                </div>
 
-          {/* Continue Button */}
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full h-11 mt-2 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-medium text-sm shadow-md shadow-purple-950/40 transition-all duration-200 active:scale-[0.99] flex items-center justify-center gap-2 group disabled:opacity-70 disabled:cursor-not-allowed"
-          >
-            {isLoading ? (
-              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-            ) : (
-              <>
-                <span>Continue</span>
-                <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5" />
-              </>
-            )}
-          </button>
-        </form>
+                {/* Remember me & Forgot Password */}
+                <div className="flex items-center justify-between pt-1 pb-1 text-xs">
+                  <label className="flex items-center gap-2 cursor-pointer group">
+                    <input
+                      type="checkbox"
+                      checked={rememberMe}
+                      onChange={(e) => setRememberMe(e.target.checked)}
+                      className="w-4 h-4 rounded border-zinc-800 bg-zinc-900 text-purple-600 focus:ring-purple-500/20 focus:ring-offset-0 transition-colors cursor-pointer accent-purple-600"
+                    />
+                    <span className="text-zinc-400 group-hover:text-zinc-300 transition-colors">
+                      Remember me
+                    </span>
+                  </label>
+
+                  <a
+                    href="#forgot-password"
+                    className="text-purple-400 hover:text-purple-300 font-medium transition-colors focus:outline-none focus:underline"
+                  >
+                    Forgot password?
+                  </a>
+                </div>
+
+                {/* Continue Button */}
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full h-11 mt-2 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-medium text-sm shadow-md shadow-purple-950/40 transition-all duration-200 active:scale-[0.99] flex items-center justify-center gap-2 group disabled:opacity-70 disabled:cursor-not-allowed"
+                >
+                  {isLoading ? (
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  ) : (
+                    <>
+                      <span>Continue</span>
+                      <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5" />
+                    </>
+                  )}
+                </button>
+              </form>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Divider */}
-        <div className="relative flex items-center my-6">
+        <div className="relative flex items-center my-5">
           <div className="flex-grow border-t border-zinc-800/80" />
           <span className="flex-shrink mx-3 text-[11px] font-medium text-zinc-500 tracking-wider uppercase">
             or
@@ -172,7 +390,7 @@ export const AuthCard: React.FC = () => {
           {/* Google Button */}
           <button
             type="button"
-            className="h-10 rounded-lg border border-zinc-800/90 bg-zinc-900/40 hover:bg-zinc-800/60 hover:border-zinc-700/80 text-zinc-200 text-xs font-medium transition-all duration-150 flex items-center justify-center gap-2.5 focus:outline-none focus:ring-1 focus:ring-zinc-700"
+            className="h-10 rounded-lg border border-zinc-800/90 bg-zinc-900/40 hover:bg-zinc-800/60 hover:border-zinc-700/80 text-zinc-200 text-xs font-medium transition-all duration-150 flex items-center justify-center gap-2.5 focus:outline-none focus:ring-1 focus:ring-zinc-700 cursor-pointer"
           >
             <svg className="w-4 h-4" viewBox="0 0 24 24">
               <path
@@ -198,7 +416,7 @@ export const AuthCard: React.FC = () => {
           {/* GitHub Button */}
           <button
             type="button"
-            className="h-10 rounded-lg border border-zinc-800/90 bg-zinc-900/40 hover:bg-zinc-800/60 hover:border-zinc-700/80 text-zinc-200 text-xs font-medium transition-all duration-150 flex items-center justify-center gap-2.5 focus:outline-none focus:ring-1 focus:ring-zinc-700"
+            className="h-10 rounded-lg border border-zinc-800/90 bg-zinc-900/40 hover:bg-zinc-800/60 hover:border-zinc-700/80 text-zinc-200 text-xs font-medium transition-all duration-150 flex items-center justify-center gap-2.5 focus:outline-none focus:ring-1 focus:ring-zinc-700 cursor-pointer"
           >
             <svg className="w-4 h-4 fill-current text-zinc-100" viewBox="0 0 24 24">
               <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
@@ -207,15 +425,37 @@ export const AuthCard: React.FC = () => {
           </button>
         </div>
 
-        {/* Footer Sign Up Link */}
-        <div className="mt-8 text-center text-xs text-zinc-400">
-          Don&apos;t have an account?{' '}
-          <a
-            href="#signup"
-            className="text-purple-400 hover:text-purple-300 font-semibold ml-1 transition-colors focus:outline-none focus:underline"
-          >
-            Sign up
-          </a>
+        {/* Footer Toggle Link */}
+        <div className="mt-6 text-center text-xs text-zinc-400">
+          {isSignUp ? (
+            <>
+              Already have an account?{' '}
+              <Link
+                to="/login"
+                onClick={(e) => {
+                  e.preventDefault();
+                  toggleMode(false);
+                }}
+                className="text-purple-400 hover:text-purple-300 font-semibold ml-1 transition-colors focus:outline-none focus:underline"
+              >
+                Sign in
+              </Link>
+            </>
+          ) : (
+            <>
+              Don&apos;t have an account?{' '}
+              <Link
+                to="/signup"
+                onClick={(e) => {
+                  e.preventDefault();
+                  toggleMode(true);
+                }}
+                className="text-purple-400 hover:text-purple-300 font-semibold ml-1 transition-colors focus:outline-none focus:underline"
+              >
+                Sign up
+              </Link>
+            </>
+          )}
         </div>
       </div>
     </motion.div>
