@@ -17,6 +17,10 @@ export const channels = pgTable("channels", {
 
   description: text("description"),
 
+  type: varchar("visibility", { length: 20 }).notNull().default("public"),
+
+  visibility: varchar("visibility", { length: 20 }).notNull().default("public"),
+
   createdAt: timestamp("created_at").defaultNow().notNull(),
 
   updatedAt: timestamp("updated_at").defaultNow().notNull(),

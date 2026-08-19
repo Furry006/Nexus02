@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Mail, Lock, User, AtSign, Eye, EyeOff, ArrowRight } from 'lucide-react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import axios from 'axios';
 import { toast } from 'sonner';
+import { authApi, userApi } from '../lib/api';
+import { useAuthStore } from '../store/useAuthStore';
 
 export const AuthCard: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const setUser = useAuthStore((state) => state.setUser);
 
   const isSignUpPage = location.pathname === '/signup';
   const [isSignUp, setIsSignUp] = useState(isSignUpPage);
@@ -42,13 +44,27 @@ export const AuthCard: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const response = await axios.post('/api/auth/login', {
+      const response = await authApi.login({
         email: loginEmail,
         password: loginPassword,
       });
 
-      const message = response.data?.message || 'Signed in successfully!';
+      let authenticatedUser = response?.data;
+      if (!authenticatedUser || !authenticatedUser.fullName) {
+        const me = await userApi.getMe();
+        if (me) {
+          authenticatedUser = me;
+        }
+      }
+
+      if (authenticatedUser) {
+        setUser(authenticatedUser);
+      }
+
+      const message = response?.message || 'Signed in successfully!';
       toast.success(message);
+
+      navigate('/workspaces', { replace: true });
     } catch (err: any) {
       const errorMessage =
         err.response?.data?.message ||
@@ -65,14 +81,14 @@ export const AuthCard: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const response = await axios.post('/api/auth/signup', {
+      const response = await authApi.signUp({
         fullName,
         username,
         email: signUpEmail,
         password: signUpPassword,
       });
 
-      const message = response.data?.message || 'Account created successfully!';
+      const message = response?.message || 'Account created successfully!';
       toast.success(`${message} Please sign in.`);
       
       // Auto-prefill login email and switch to login view

@@ -11,6 +11,7 @@ import { ExploreView } from './ExploreView';
 import { HomeView } from './HomeView';
 import { CreateCommunityModal } from './CreateCommunityModal';
 import { userApi, workspaceApi, authApi } from '../../lib/api';
+import { useAuthStore } from '../../store/useAuthStore';
 import { toast } from 'sonner';
 import {
   MOCK_COMMUNITIES,
@@ -29,6 +30,7 @@ import type {
 
 export const DashboardLayout: React.FC = () => {
   const navigate = useNavigate();
+  const { user: storeUser, clearUser } = useAuthStore();
 
   // Navigation State
   const [activeSection, setActiveSection] = useState<MainNavSection>('home');
@@ -43,17 +45,38 @@ export const DashboardLayout: React.FC = () => {
   const [dmConversations, setDmConversations] = useState(MOCK_DMS);
 
   // Current User State
-  const [currentUser, setCurrentUser] = useState<MemberData>(MOCK_MEMBERS[0]);
+  const [currentUser, setCurrentUser] = useState<MemberData>(() => ({
+    id: storeUser?.id || MOCK_MEMBERS[0].id,
+    name: storeUser?.fullName || storeUser?.username || MOCK_MEMBERS[0].name,
+    username: storeUser?.username || MOCK_MEMBERS[0].username,
+    avatarBg: 'bg-purple-600',
+    status: 'online',
+    role: 'Owner',
+  }));
 
   // Modal State
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+  // Sync storeUser with local state when storeUser updates
+  useEffect(() => {
+    if (storeUser) {
+      setCurrentUser({
+        id: storeUser.id,
+        name: storeUser.fullName || storeUser.username,
+        username: storeUser.username,
+        avatarBg: 'bg-purple-600',
+        status: 'online',
+        role: 'Owner',
+      });
+    }
+  }, [storeUser]);
 
   // Load Real User & Backend Workspaces on Mount
   useEffect(() => {
     let isMounted = true;
 
     async function loadBackendData() {
-      // 1. Fetch Me
+      // 1. Fetch Me if storeUser is not present yet
       const me = await userApi.getMe();
       if (me && isMounted) {
         setCurrentUser({
@@ -258,7 +281,8 @@ export const DashboardLayout: React.FC = () => {
     } catch {
       toast.info('Logged out.');
     } finally {
-      navigate('/login');
+      clearUser();
+      navigate('/login', { replace: true });
     }
   };
 
