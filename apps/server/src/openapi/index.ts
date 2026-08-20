@@ -6,5 +6,6 @@ export * from "./types.js";
 export const Tags = {
   Auth: ["Auth"],
   User: ["User"],
-  Workspace: ["Workspace"]
+  Workspace: ["Workspace"],
+  Channel: ["Channel"],
 };
