@@ -46,5 +46,6 @@ router.openapi(helloRoute, helloHandler);
 router.route("/auth", authRoute);
 router.route("/user", userRoute);
 router.route("/workspace", workspaceRoute);
+router.route("/channel", channelRoute);
 
 export default router;
