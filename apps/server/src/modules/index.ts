@@ -13,6 +13,7 @@ import { HttpPhrases, HttpResponse, HttpStatus } from "#/utils/http/index.js";
 import { authRoute } from "./auth/routes.js";
 import { userRoute } from "./user/routes.js";
 import { workspaceRoute } from "./workspace/routes.js";
+import { channelRoute } from "./channel/routes.js";
 
 const helloRoute = createRoute({
   tags: ["Hello"],
