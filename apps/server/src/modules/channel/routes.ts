@@ -7,6 +7,7 @@ import {
     Tags,
 } from "#/openapi/index.js";
 import { HttpPhrases, HttpStatus } from "#/utils/http/index.js";
+import { authMiddleware } from "#/middlewares/auth.js";
 import { createChannelSchema, workspaceIdParamSchema } from "./schemas.js";
 import { createChannelHandler } from "./handlers.js";
 
@@ -14,7 +15,8 @@ import { createChannelHandler } from "./handlers.js";
 export const createChannelRoute = createRoute({
     tags: Tags.Channel,
     method: "post",
-    path: "/workspace/{workspaceId}/channel",
+    path: "/workspace/{workspaceId}/create",
+    middleware: [authMiddleware],
     request: {
         params: workspaceIdParamSchema,
         body: jsonContent(createChannelSchema, "Create Channel"),
