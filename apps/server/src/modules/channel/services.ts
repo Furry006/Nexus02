@@ -1,0 +1,81 @@
+import { and, eq } from "drizzle-orm"
+import { db } from "#/db/index.js"
+import { channels, workspaceMembers, workspaces } from "#/db/schemas/index.js"
+import { HttpError, HttpStatus } from "#/utils/http/index.js"
+import type { CreateChannelInput } from "./schemas.js";
+
+
+type CreateChannelServiceInput = CreateChannelInput & {
+    workspaceId: string;
+    userId: string;
+};
+
+export const createChannel = async ({
+    workspaceId,
+    userId,
+    name,
+    description,
+    isPrivate,
+}: CreateChannelServiceInput) => {
+    const workspace = await db.query.workspaces.findFirst({
+        where: eq(workspaces.id, workspaceId)
+    });
+    if (!workspace) {
+        throw new HttpError(
+            HttpStatus.NOT_FOUND,
+            "Workspace not found",
+        );
+    }
+
+    const membership = await db.query.workspaceMembers.findFirst({
+        where: and(
+            eq(workspaceMembers.workspaceId, workspaceId),
+            eq(workspaceMembers.userId, userId),
+        ),
+    })
+    if (!membership) {
+        throw new HttpError(
+            HttpStatus.FORBIDDEN,
+            "You are not a member of this workspace",
+        );
+    }
+    if (membership.role !== 'owner') {
+        throw new HttpError(
+            HttpStatus.FORBIDDEN,
+            "You are not allowed to create channels"
+        );
+    }
+
+    const existingChannel = await db.query.channels.findFirst({
+        where: and(
+            eq(channels.workspaceId, workspaceId),
+            eq(channels.name, name),
+        ),
+    })
+    if (existingChannel) {
+        throw new HttpError(
+            HttpStatus.CONFLICT,
+            "Channel with this name already exists",
+        );
+    }
+
+    const [channel] = await db
+        .insert(channels)
+        .values({
+            workspaceId,
+            name,
+            description,
+            visibility: isPrivate ? "private" : "public",
+        })
+        .returning();
+
+    if (!channel) {
+        throw new HttpError(
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            "Failed to create channel",
+        );
+    }
+
+    return channel;
+}
+
