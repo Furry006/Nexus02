@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm"
+import { and, asc, eq } from "drizzle-orm"
 import { db } from "#/db/index.js"
 import { channels, workspaceMembers, workspaces } from "#/db/schemas/index.js"
 import { HttpError, HttpStatus } from "#/utils/http/index.js"
@@ -79,3 +79,41 @@ export const createChannel = async ({
     return channel;
 }
 
+type GetWorkspaceChannelsServiceInput = {
+    workspaceId: string;
+    userId: string;
+};
+
+export const getWorkspaceChannels = async ({ workspaceId, userId }: GetWorkspaceChannelsServiceInput) => {
+    const workspace = await db.query.workspaces.findFirst({
+        where: eq(workspaces.id, workspaceId)
+    });
+    if (!workspace) {
+        throw new HttpError(
+            HttpStatus.NOT_FOUND,
+            "Workspace not found",
+        );
+    }
+
+    const membership = await db.query.workspaceMembers.findFirst({
+        where: and(
+            eq(workspaceMembers.workspaceId, workspaceId),
+            eq(workspaceMembers.userId, userId),
+        ),
+    })
+    if (!membership) {
+        throw new HttpError(
+            HttpStatus.FORBIDDEN,
+            "You are not a member of this workspace",
+        );
+    }
+
+    const workspaceChannels = await db
+        .select()
+        .from(channels)
+        .where(eq(channels.workspaceId, workspaceId))
+        .orderBy(asc(channels.createdAt))
+        .execute();
+
+    return workspaceChannels;
+}
