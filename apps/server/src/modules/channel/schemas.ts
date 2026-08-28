@@ -41,7 +41,22 @@ export const channelSchema = z.object({
   updatedAt: z.string()
 })
 
+export const updateChannelSchema = z.object({
+  name : z
+    .string()
+    .min(2, "Channel name must be at least 2 characters")
+    .max(100, "Channel name must not exceed 100 characters")
+    .trim()
+    .optional(),
+  description: z
+    .string()
+    .max(500, "Description must not exceed 500 characters")
+    .optional(),
+  type: z.enum(["text", "voice"]).optional(),
+  isPrivate: z.boolean().optional()
+  })
 
 
 export type CreateChannelInput = z.infer<typeof createChannelSchema>;
 export const channelIsListSchema = z.array(channelSchema)
+export type UpdateChannelInput = z.infer<typeof updateChannelSchema>;
