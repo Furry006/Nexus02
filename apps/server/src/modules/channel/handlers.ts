@@ -1,7 +1,7 @@
 import type { AppRouteHandler } from "#/openapi/index.js";
-import type { CreateChannelRoute, GetWorkspaceChannel } from "./routes.js";
+import type { CreateChannelRoute, GetWorkspaceChannel, UpdateChannelRoute } from "./routes.js";
 import { HttpResponse, HttpStatus, HttpError } from "#/utils/http/index.js";
-import { createChannel, getWorkspaceChannels } from "./services.js";
+import { createChannel, getWorkspaceChannels, updateChannel } from "./services.js";
 
 export const createChannelHandler: AppRouteHandler<CreateChannelRoute> = async (
   ctx,
@@ -53,3 +53,34 @@ export const getWorkspaceChannelHandler: AppRouteHandler<GetWorkspaceChannel> = 
     channels,
   );
 }
+
+export const updateChannelHandler : AppRouteHandler<UpdateChannelRoute> = async (ctx) => {
+  const {workspaceId, channelId} = ctx.req.valid("param")
+
+  const body = ctx.req.valid("json")
+
+  const user = ctx.get("user");
+  if (!user) {
+    throw new HttpError(
+      HttpStatus.UNAUTHORIZED,
+      "Unauthorized",
+    );
+  }
+
+  const channel = await updateChannel({
+    workspaceId,
+    channelId,
+    userID: user["id"],
+    ...body,
+  });
+
+  return HttpResponse.success(
+    ctx,
+    HttpStatus.OK,
+    "Channel updated successfully",
+    channel,
+  );
+};
+
+
+
