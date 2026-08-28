@@ -16,6 +16,7 @@ import {
 } from "./schemas.js";
 import {
   createChannelHandler,
+  deleteChannelHandler,
   getWorkspaceChannelHandler,
   updateChannelHandler,
 } from "./handlers.js";
@@ -181,4 +182,5 @@ export type DeleteChannelRoute = typeof deleteChannelRoute;
 export const channelRoute = createRouter()
   .openapi(createChannelRoute, createChannelHandler)
   .openapi(getWorkspaceChannelRoute, getWorkspaceChannelHandler)
-  .openapi(updateChannelRoute, updateChannelHandler);
+  .openapi(updateChannelRoute, updateChannelHandler)
+   .openapi(deleteChannelRoute, deleteChannelHandler);
