@@ -146,11 +146,39 @@ export const updateChannelRoute = createRoute({
   },
 });
 
+export const deleteChannelRoute = createRoute({
+  tags: Tags.Channel,
+  method: "delete",
+  path: "/workspace/{workspaceId}/channel/{channelId}",
+  middleware: [authMiddleware],
+  request: {
+    params: workspaceChannelParamSchema,
+  },
+  responses: {
+    [HttpStatus.OK]: jsonContent(successSchema(), HttpPhrases.OK),
+
+    [HttpStatus.BAD_REQUEST]: jsonContent(
+      errorSchema({
+        message: "Invalid Request",
+      }),
+      HttpPhrases.BAD_REQUEST,
+    ),
+
+    [HttpStatus.NOT_FOUND]: jsonContent(
+      errorSchema({
+        message: "Channel not found",
+      }),
+      HttpPhrases.NOT_FOUND,
+    ),
+  },
+});
+
 export type CreateChannelRoute = typeof createChannelRoute;
 export type GetWorkspaceChannel = typeof getWorkspaceChannelRoute;
 export type UpdateChannelRoute = typeof updateChannelRoute;
+export type DeleteChannelRoute = typeof deleteChannelRoute;
 
 export const channelRoute = createRouter()
   .openapi(createChannelRoute, createChannelHandler)
   .openapi(getWorkspaceChannelRoute, getWorkspaceChannelHandler)
-  .openapi(updateChannelRoute, updateChannelHandler)
+  .openapi(updateChannelRoute, updateChannelHandler);
