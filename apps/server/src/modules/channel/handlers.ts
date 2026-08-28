@@ -1,7 +1,17 @@
 import type { AppRouteHandler } from "#/openapi/index.js";
-import type { CreateChannelRoute, GetWorkspaceChannel, UpdateChannelRoute } from "./routes.js";
+import type {
+  CreateChannelRoute,
+  DeleteChannelRoute,
+  GetWorkspaceChannel,
+  UpdateChannelRoute,
+} from "./routes.js";
 import { HttpResponse, HttpStatus, HttpError } from "#/utils/http/index.js";
-import { createChannel, getWorkspaceChannels, updateChannel } from "./services.js";
+import {
+  createChannel,
+  deleteChannel,
+  getWorkspaceChannels,
+  updateChannel,
+} from "./services.js";
 
 export const createChannelHandler: AppRouteHandler<CreateChannelRoute> = async (
   ctx,
@@ -79,6 +89,25 @@ export const updateChannelHandler : AppRouteHandler<UpdateChannelRoute> = async 
     HttpStatus.OK,
     "Channel updated successfully",
     channel,
+  );
+};
+
+export const deleteChannelHandler: AppRouteHandler<DeleteChannelRoute> = async (ctx) => {
+  const { workspaceId, channelId } = ctx.req.valid("param");
+
+  const user = ctx.get("user");
+
+  const deletedChannel = await deleteChannel({
+    workspaceId,
+    channelId,
+    userId: user["id"] as string,
+  });
+
+  return HttpResponse.success(
+    ctx,
+    HttpStatus.OK,
+    "Channel Deleted Successfully",
+    deletedChannel,
   );
 };
 
