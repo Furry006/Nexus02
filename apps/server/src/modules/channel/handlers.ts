@@ -70,7 +70,7 @@ export const updateChannelHandler : AppRouteHandler<UpdateChannelRoute> = async 
   const channel = await updateChannel({
     workspaceId,
     channelId,
-    userID: user["id"],
+    userId: user["id"] as string,
     ...body,
   });
 
