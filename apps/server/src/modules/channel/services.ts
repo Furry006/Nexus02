@@ -1,8 +1,8 @@
-import { and, asc, eq } from "drizzle-orm"
+import { and, asc, eq, exists } from "drizzle-orm"
 import { db } from "#/db/index.js"
 import { channels, workspaceMembers, workspaces } from "#/db/schemas/index.js"
 import { HttpError, HttpStatus } from "#/utils/http/index.js"
-import type { CreateChannelInput } from "./schemas.js";
+import type { CreateChannelInput, UpdateChannelInput } from "./schemas.js";
 
 
 type CreateChannelServiceInput = CreateChannelInput & {
@@ -117,3 +117,53 @@ export const getWorkspaceChannels = async ({ workspaceId, userId }: GetWorkspace
 
     return workspaceChannels;
 }
+
+type UpdateChannelServiceInput = UpdateChannelInput & {
+  workspaceId: string;
+  channelId: string;
+  userId: string;
+};
+
+export const updateChannel = async ({
+  workspaceId,
+  channelId,
+  userId,
+  ...updates
+}: UpdateChannelServiceInput) => {
+  const [updatedChannel] = await db
+    .update(channels)
+    .set({
+      ...updates,
+      updatedAt: new Date(),
+    })
+    .where(
+      and(
+        eq(channels.id, channelId),
+        eq(channels.workspaceId, workspaceId),
+
+        exists(
+          db
+            .select({ id: workspaceMembers.id })
+            .from(workspaceMembers)
+            .where(
+              and(
+                eq(workspaceMembers.workspaceId, workspaceId),
+                eq(workspaceMembers.userId, userId),
+                eq(workspaceMembers.role, "owner"),
+              ),
+            ),
+        ),
+      ),
+    )
+    .returning();
+
+  if (!updatedChannel) {
+    throw new HttpError(
+      HttpStatus.NOT_FOUND,
+      "Channel not found or you don't have permission",
+    );
+  }
+
+  return updatedChannel;
+};
+
