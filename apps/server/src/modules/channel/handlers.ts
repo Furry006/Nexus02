@@ -13,9 +13,7 @@ import {
   updateChannel,
 } from "./services.js";
 
-export const createChannelHandler: AppRouteHandler<CreateChannelRoute> = async (
-  ctx,
-) => {
+export const createChannelHandler: AppRouteHandler<CreateChannelRoute> = async (ctx) => {
   const user = ctx.get("user");
   console.log("user from ctx:", user);
   if (!user) {
@@ -110,6 +108,3 @@ export const deleteChannelHandler: AppRouteHandler<DeleteChannelRoute> = async (
     deletedChannel,
   );
 };
-
-
-
