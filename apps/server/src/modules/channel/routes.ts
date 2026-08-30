@@ -183,4 +183,4 @@ export const channelRoute = createRouter()
   .openapi(createChannelRoute, createChannelHandler)
   .openapi(getWorkspaceChannelRoute, getWorkspaceChannelHandler)
   .openapi(updateChannelRoute, updateChannelHandler)
-   .openapi(deleteChannelRoute, deleteChannelHandler);
+  .openapi(deleteChannelRoute, deleteChannelHandler);
