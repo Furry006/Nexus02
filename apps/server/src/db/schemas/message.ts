@@ -24,6 +24,9 @@ export const messages = pgTable(
     createdAt: timestamp("created_at").defaultNow().notNull(),
 
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
+
+    deletedAt: timestamp("deleted_at"),
+
   },
   (table) => ({
     channelCreatedAtIdx: index("messages_channel_created_at_idx").on(
