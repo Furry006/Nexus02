@@ -4,4 +4,5 @@ export * from "./member.js"
 export * from "./message.js"
 export * from "./workspace.js"
 export * from "./refresh-token.js"
+export * from "./conversation.js"
 

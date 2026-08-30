@@ -1,15 +1,15 @@
 import { pgTable, uuid, text, timestamp, index } from "drizzle-orm/pg-core";
 
-import { users, channels } from "./index.js";
+import { users, conversations } from "./index.js";
 
 export const messages = pgTable(
   "messages",
   {
     id: uuid("id").defaultRandom().primaryKey(),
 
-    channelId: uuid("channel_id")
+    conversationId: uuid("conversation_id")
       .notNull()
-      .references(() => channels.id, {
+      .references(() => conversations.id, {
         onDelete: "cascade",
       }),
 
@@ -26,12 +26,12 @@ export const messages = pgTable(
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
 
     deletedAt: timestamp("deleted_at"),
-
   },
-  (table) => ({
-    channelCreatedAtIdx: index("messages_channel_created_at_idx").on(
-      table.channelId,
+
+  (table) => [
+    index("messages_conversation_created_at_idx").on(
+      table.conversationId,
       table.createdAt,
     ),
-  }),
+  ],
 );
