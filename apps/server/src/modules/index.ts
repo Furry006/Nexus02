@@ -14,6 +14,7 @@ import { authRoute } from "./auth/routes.js";
 import { userRoute } from "./user/routes.js";
 import { workspaceRoute } from "./workspace/routes.js";
 import { channelRoute } from "./channel/routes.js";
+import { messageRoute } from "./message/routes.js";
 
 const helloRoute = createRoute({
   tags: ["Hello"],
@@ -48,5 +49,6 @@ router.route("/auth", authRoute);
 router.route("/user", userRoute);
 router.route("/workspace", workspaceRoute);
 router.route("/channel", channelRoute);
+router.route("/message", messageRoute);
 
 export default router;
