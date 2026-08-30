@@ -8,4 +8,5 @@ export const Tags = {
   User: ["User"],
   Workspace: ["Workspace"],
   Channel: ["Channel"],
+  Message: ["Message"],
 };
