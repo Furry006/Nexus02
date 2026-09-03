@@ -14,6 +14,7 @@ const refreshSecret = new TextEncoder().encode(env.REFRESH_SECRET!);
 export type JwtPayload = {
   id: string;
   email: string;
+  username: string;
 };
 
 const generateToken = async (

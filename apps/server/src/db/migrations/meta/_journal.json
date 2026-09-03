@@ -43,6 +43,13 @@
       "when": 1788080871798,
       "tag": "0005_square_thena",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1788424830541,
+      "tag": "0006_workable_thunderbolts",
+      "breakpoints": true
     }
   ]
 }

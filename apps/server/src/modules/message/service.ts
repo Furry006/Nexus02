@@ -1,4 +1,3 @@
-
 import { db } from "#/db/index.js";
 import { conversations, messages } from "#/db/schemas/index.js";
 
@@ -76,3 +75,16 @@ export const createMessage = async ({
     return message;
   });
 };
+
+type GetMessageServiceInput = {
+  type: "channel" | "direct";
+  targetId: string;
+  userId: string;
+  limit: number;
+  beforeCreatedAt?: string;
+  beforeId?: string;
+};
+
+export const getMessages = async ({}: GetMessageServiceInput) => {
+
+}

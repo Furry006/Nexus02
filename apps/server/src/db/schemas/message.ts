@@ -32,6 +32,7 @@ export const messages = pgTable(
     index("messages_conversation_created_at_idx").on(
       table.conversationId,
       table.createdAt,
+      table.id,
     ),
   ],
 );

@@ -17,6 +17,7 @@ export const authMiddleware = createMiddleware(async (c, next) => {
     c.set("user", {
       id: payload["id"] as string,
       email: payload["email"] as string,
+      username: payload["username"] as string,
     });
 
     await next();

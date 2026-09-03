@@ -87,11 +87,13 @@ export const logIn = async (
   const accessToken = await generateAccessToken({
     id: user.id,
     email: user.email,
+    username: user.username,
   });
   //generate refresh Token
   const refreshToken = await generateRefreshToken({
     id: user.id,
     email: user.email,
+    username: user.username,
   });
   //save in Db 
   await saveRefreshToken(
