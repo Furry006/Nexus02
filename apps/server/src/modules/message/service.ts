@@ -107,14 +107,14 @@ type GetMessageServiceInput = {
   beforeId?: string;
 };
 
-export const getMessages = async ({
-  type,
-  targetId,
-  userId,
-  limit,
-  beforeCreatedAt,
-  beforeId,
-}: GetMessageServiceInput) => {
+export const getMessages = async ({ 
+    type,
+    targetId,
+    userId,
+    limit,
+    beforeCreatedAt,
+    beforeId,
+  }: GetMessageServiceInput) => {
   if (type === "direct" && targetId === userId) {
     throw new HttpError(
       HttpStatus.BAD_REQUEST,
