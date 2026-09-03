@@ -14,10 +14,12 @@ export const createMessageSchema = z.object({
     .max(4000, "Message cannot exceed 4000 characters"),
 });
 
-export const getMessagesQuerySchema = z.object({
+export const getMessagesQuerySchema = z
+  .object({
     limit: z.coerce.number().int().min(1).max(100).default(50),
     beforeCreatedAt: z.iso.datetime().optional(),
-    beforeId: z.uuid({ version: "v4", message: "Invalid message id" })
+    beforeId: z
+      .uuid({ version: "v4", message: "Invalid message id" })
       .optional(),
   })
   .refine(
@@ -29,6 +31,14 @@ export const getMessagesQuerySchema = z.object({
     },
   );
 
+export const deleteMessageIdParamSchema = z.object({
+  messageId: z.uuid({
+    version: "v4",
+    message: "Invalid message id",
+  }),
+});
+
 export type MessageTargetParam = z.infer<typeof messageTargetParamSchema>;
 export type CreateMessageInput = z.infer<typeof createMessageSchema>;
 export type GetMessagesQuery = z.infer<typeof getMessagesQuerySchema>;
+export type DeleteMessageParam = z.infer<typeof deleteMessageIdParamSchema>;
