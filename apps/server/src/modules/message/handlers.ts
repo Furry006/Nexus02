@@ -1,8 +1,7 @@
 import type { AppRouteHandler } from "#/openapi/index.js";
-import type { CreateMessageRoute, GetMessageRoute } from "./routes.js";
-
+import type { CreateMessageRoute, DeleteMessageRoute, GetMessageRoute } from "./routes.js";
 import { HttpResponse, HttpStatus } from "#/utils/http/index.js";
-import { createMessage, getMessages } from "./service.js";
+import { createMessage, getMessages, deleteMessage } from "./service.js";
 
 export const createMessageHandler: AppRouteHandler<CreateMessageRoute> = async (
   ctx,
@@ -48,3 +47,20 @@ export const getMessageHandler: AppRouteHandler<GetMessageRoute> = async ( ctx )
     result,
   );
 };
+
+export const deleteMessageHandler : AppRouteHandler<DeleteMessageRoute> = async(ctx) => {
+  const { messageId } = ctx.req.valid("param")
+  const user = ctx.get("user")
+
+  const result = await deleteMessage({
+    messageId,
+    userId: user.id
+  })
+
+  return HttpResponse.success(
+  ctx,
+  HttpStatus.OK,
+  "message deleted Successfully",
+  result,
+  );
+}
