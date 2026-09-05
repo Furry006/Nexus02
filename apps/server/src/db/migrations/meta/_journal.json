@@ -50,6 +50,13 @@
       "when": 1788424830541,
       "tag": "0006_workable_thunderbolts",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1788606420712,
+      "tag": "0007_chunky_talisman",
+      "breakpoints": true
     }
   ]
 }

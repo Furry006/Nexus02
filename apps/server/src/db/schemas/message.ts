@@ -13,7 +13,7 @@ export const messages = pgTable(
         onDelete: "cascade",
       }),
 
-    userId: uuid("user_id")
+    senderId: uuid("sender_id")
       .notNull()
       .references(() => users.id, {
         onDelete: "cascade",
@@ -24,8 +24,6 @@ export const messages = pgTable(
     createdAt: timestamp("created_at").defaultNow().notNull(),
 
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
-
-    deletedAt: timestamp("deleted_at"),
   },
 
   (table) => [

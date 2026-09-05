@@ -6,7 +6,7 @@ import {
   uniqueIndex,
 } from "drizzle-orm/pg-core";
 
-import { users, channels } from "./index.js";
+import { channels } from "./index.js";
 
 export const conversationTypeEnum = pgEnum("conversation_type", [
   "channel",
@@ -24,27 +24,26 @@ export const conversations = pgTable(
       onDelete: "cascade",
     }),
 
-    directUserOneId: uuid("direct_user_one_id").references(() => users.id, {
-      onDelete: "cascade",
-    }),
+    participants: uuid("participants").array(),
 
-    directUserTwoId: uuid("direct_user_two_id").references(() => users.id, {
-      onDelete: "cascade",
-    }),
+    lastInteractionAt: timestamp("last_interaction_at")
+      .defaultNow()
+      .notNull(),
 
-    lastInteractionAt: timestamp("last_interaction_at").defaultNow().notNull(),
+    createdAt: timestamp("created_at")
+      .defaultNow()
+      .notNull(),
 
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-
-    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .notNull(),
   },
 
   (table) => [
     uniqueIndex("conversations_channel_unique").on(table.channelId),
 
-    uniqueIndex("conversations_direct_users_unique").on(
-      table.directUserOneId,
-      table.directUserTwoId,
+    uniqueIndex("conversations_direct_participants_unique").on(
+      table.participants,
     ),
   ],
 );
